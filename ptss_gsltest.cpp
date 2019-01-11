@@ -13,7 +13,7 @@
 // Global configuration
 #define NPH 5
 #define M   16
-#define D   218
+#define D   216
 
 /* HI - Test Editing */
 using namespace std;
@@ -65,7 +65,15 @@ bool is_incomparable(const alloc_t &a, const alloc_t &b) {
     return ret;
 }
 
-// prefix comparison of
+// lexicographic comparison of two allocations ( a < b ? )
+bool lex_comp(const alloc_t &a, const alloc_t &b) {
+    auto it2 = b.begin();
+    for (auto it = a.begin(); it != a.end(); it++, it2++) {
+        if (*it2 < *it)
+            return false;
+    }
+    return true;
+}
 
 
 // just for the sample -- print the data sets
@@ -163,6 +171,13 @@ class ptss_DSE {
         all_alloc_t feasible_space;
         all_alloc_t discarded_space;
 
+        double dmr;
+
+        /* Optimal Point, just for testing */
+        alloc_t opt_point;
+        double opt_util;
+        double opt_risk;
+
         // Lower and Upper "limits" points for DMR
         alloc_t lower;
         alloc_t upper;
@@ -200,25 +215,39 @@ void ptss_DSE::display() {
 ptss_DSE::ptss_DSE() {
     construct_alloc(this->search_space,0);
     this->is_initialized = true;
+    this->dmr = 1.0;
 }
 
 ptss_DSE::ptss_DSE(double dmr) {
     construct_alloc(this->search_space,0);
     this->init_point(dmr);
     this->is_initialized = true;
+    this->dmr = dmr;
 }
 
 
 // Evaluate all points
 void ptss_DSE::evaluate_all() {
+    this->opt_point = this->lower;
+    this->opt_util  = 10e9;
+    this->opt_risk  = 1;
+
+    // cout << "Search space size " << search_space.size();
     for(auto it = search_space.begin();
         it != search_space.end();
         it++) {
         
         double risk = compute_risk(*it);
         double util = compute_estimated_util(*it);
-        cout << *it << "," << risk << "," << util << "\n";
+
+        if (risk <= this->dmr && util <= this->opt_util) {
+            this->opt_point = *it;
+            this->opt_util  = util;
+            this->opt_risk  = risk;
+        }
+        // cout << *it << "," << risk << "," << util << "\n";
     }
+    cout << this->opt_point << "," << this->opt_risk << "," << this->opt_util << "\n";
 }
 
 void ptss_DSE::init_point(double dmr) {
@@ -379,31 +408,62 @@ void apply_action_rule13(all_alloc_t &fbidden,\
                          all_alloc_t &aset,\
                          int actv_id) {
     bool no_child = true;
-
-    /* 
-     * fbidden <- fbidden U fset 
-     * fset.clear()
-     */
-    struct timeval t2, t1;
-    gettimeofday(&t1,NULL);
+    int i, j;
     
+    /* Expand the children and create the new frontier */
     for (set<alloc_t>::iterator it = fset.begin(); it != fset.end(); it++) {
-        alloc_t tmp = *it;
+        
         // cout << "Inserting to fbidden set (activ-"<<actv_id<<"): " << *it << endl;
-        fbidden.insert(tmp); // Insert all the elements of frontier set into fbidden set.
+        // fbidden.insert(*it); // Insert all the elements of frontier set into fbidden set.
 
         /* Expand all the elements of the frontier */
-        epsilon_move2_rule1(aset,*it,fbidden);
-        epsilon_move2_rule3(aset,*it,fbidden);
+        // epsilon_move2_rule1(aset,*it,fbidden);
+        // epsilon_move2_rule3(aset,*it,fbidden);
+        
+        alloc_t tmp = *it;
+        fbidden.insert(tmp);
 
-        //it = fset.erase(it);
+        /* Rule 1 Expansion */
+        for (int idx = 0; idx < NPH; idx++) {
+            alloc_t tmp2  = tmp;   
+            if (tmp2[idx] > 1) {
+                tmp2[idx]--;
+                if (fbidden.count(tmp2) < 1)
+                    aset.insert(tmp2);
+            }
+        }
+
+        /* Rule 3 Expansion */
+        for (i = 0; i < NPH; i++) {
+            for (j = 0; j < NPH; j++) {
+                // cout << "Expr : ("<<i<<","<<j<<") " << ((i != j) && (tmp[i] > 1) && (tmp[j] < M));
+                if ((i != j) && (tmp[i] > 1) && (tmp[j] < M)) {
+                    /* Transfer a core from i to j */
+                    alloc_t new_point = tmp;
+                    new_point[i]--;
+                    new_point[j]++;
+                    /* Check Execution Time before insert */
+                    if (compute_execution_time(new_point) > compute_execution_time(tmp)) {
+                        if (fbidden.count(new_point) < 1)
+                            aset.insert(new_point);
+                        /* Also insert other points derived from it */
+                        alloc_t new_point2 = new_point;
+                        while ((new_point2[i] > 1) && (new_point2[j] < M)) {
+                                new_point2[i]--;
+                                new_point2[j]++;
+                                if (fbidden.count(new_point) < 1)
+                                    aset.insert(new_point2);
+                        }
+                    }
+                    // cout << "Blah : "<< "i = "<< i << ",j = " << j << ", tmp[i] = " << tmp[i] << ", tmp[j] = " << tmp[j] << endl; 
+                } else {
+                    // cout << "i = "<< i << ",j = " << j << ", tmp[i] = " << tmp[i] << ", tmp[j] = " << tmp[j] << endl; 
+                }
+            }
+        }
     }
     fset.clear();
     no_child = no_child && (aset.empty()?true:false);
-    
-    gettimeofday(&t2,NULL);
-    double time_diff = (t2.tv_sec - t1.tv_sec) + 10e-6 * (t2.tv_usec-t1.tv_usec);
-    cout << "Forbidden Set activ-id("<<actv_id<<") : "<<fbidden.size() << ", Frontier Set size : " << aset.size() << ", elapsed time : " << time_diff << endl;
     
     if (!no_child) {
         apply_action_rule13(fbidden,aset,fset,++actv_id);
@@ -419,17 +479,17 @@ void ptss_DSE::explore() {
 /********************************************************************/
 int main () {
 
-    auto start_time = chrono::high_resolution_clock::now();
+    struct timeval t1, t2;
+    gettimeofday(&t1,NULL);
     ptss_DSE obj(0.25);
     // cout << obj;
     // obj.display();
-    // obj.eliminate_points_rule12();
-    // epsilon_move2_test();
     obj.explore();
-    auto end_time = chrono::high_resolution_clock::now();
-    auto elapsed  = chrono::duration_cast<chrono::seconds>(end_time - start_time).count();
+    // obj.evaluate_all();
+    gettimeofday(&t2,NULL);
+    double elapsed  = (t2.tv_sec-t1.tv_sec)*1000000+(t2.tv_usec-t1.tv_usec);
 
-    cout << elapsed << "s\n";
+    cout << elapsed << "us\n";
 
     // alloc_t a = {1,2,3,4,5};
     // alloc_t b = {1,1,3,4,2};
