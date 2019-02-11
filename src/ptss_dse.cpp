@@ -1,3 +1,8 @@
+/**
+ * Implementation of Rules to eliminate
+ * Design points. Check Risk-Base Allocation.pptx
+ * for more details.
+ */
 #include <iostream>
 #include <vector>
 #include <set>
@@ -8,19 +13,12 @@
 #include <queue>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
-
-
-// Global configuration
-#define NPH 5
-#define M   16
-#define D   216
+#include "ptss_dse.hpp"
 
 /* HI - Test Editing */
 using namespace std;
 using boost::math::normal;
 
-typedef vector<int> alloc_t;
-typedef set<alloc_t> all_alloc_t;
 
 // a == b ?
 bool is_eq(const alloc_t &a, const alloc_t &b) {
@@ -160,48 +158,6 @@ void construct_alloc(all_alloc_t &vvi, int ph) {
     }
 }
 
-class ptss_DSE {
-    private :
-        /*
-         * The ptss_DSE partitions
-         * the spaces into feasible
-         * and discarded space
-         */
-        all_alloc_t search_space;
-        all_alloc_t feasible_space;
-        all_alloc_t discarded_space;
-
-        double dmr;
-
-        /* Optimal Point, just for testing */
-        alloc_t opt_point;
-        double opt_util;
-        double opt_risk;
-
-        // Lower and Upper "limits" points for DMR
-        alloc_t lower;
-        alloc_t upper;
-
-        // Get the initial allocated point
-        void init_point(double dmr);
-
-        bool is_initialized;
-
-    public :
-        ptss_DSE();
-        ptss_DSE(double dmr);
-
-        // Evaluate all points in the Design Space
-        void evaluate_all();
-
-        // Comparison based elimination
-        // void eliminate_points_rule12();
-        void explore();
-
-        // Display
-        void display();
-};
-
 
 void ptss_DSE::display() {
     cout << this->search_space << "\n";
@@ -246,6 +202,7 @@ void ptss_DSE::evaluate_all() {
             this->opt_risk  = risk;
         }
         // cout << *it << "," << risk << "," << util << "\n";
+        usleep(50);
     }
     cout << this->opt_point << "," << this->opt_risk << "," << this->opt_util << "\n";
 }
@@ -279,9 +236,6 @@ void ptss_DSE::init_point(double dmr) {
     cout << "lower" << this->lower << ", dmr = " << compute_risk(this->lower) << endl;
     cout << "upper" << this->upper << ", dmr = " << compute_risk(this->upper) << endl;
 }
-
-
-
 
 
 
@@ -484,8 +438,8 @@ int main () {
     ptss_DSE obj(0.25);
     // cout << obj;
     // obj.display();
-    obj.explore();
-    // obj.evaluate_all();
+    // obj.explore();
+    obj.evaluate_all();
     gettimeofday(&t2,NULL);
     double elapsed  = (t2.tv_sec-t1.tv_sec)*1000000+(t2.tv_usec-t1.tv_usec);
 

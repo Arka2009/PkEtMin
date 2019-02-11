@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+
+# Profile CSV datasets
+/profile-*/
+*.csv
+Datasets/
+
+# Build Products
+/build/
+
+# Editor Noise
+/.vscode/
+*.swp
+*.svo
+*.svp
