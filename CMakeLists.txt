@@ -6,11 +6,17 @@ set(PROJECT_DESCRIPTION "Design Space Exploration and Static Analyses for Probab
 set(PROJECT_URL "https://github.com/Arka2009/ptss-dse")
 set(PTSS_DSE_VERSION_MAJOR 1)
 set(PTSS_DSE_VERSION_MINOR 0)
-set(EXEC ptssdse)
+set(EXEC1 ptssdse)
+set(EXEC2 ptssutil)
 
  
-# Target
-add_executable(${EXEC} src/ptss_dse_hrt.cpp src/ptss_pkmin.cpp)
-target_include_directories(${EXEC} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR})
-target_compile_options(${EXEC} PRIVATE -std=c++11 -Wall)
-target_link_libraries(${EXEC} PUBLIC -lm)
+# Targets
+add_executable(${EXEC1} src/ptss_dse_hrt.cpp src/ptss_pkmin.cpp src/ptss_test_pkmin.cpp)
+target_include_directories(${EXEC1} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR})
+target_compile_options(${EXEC1} PRIVATE -std=c++11 -Wall)
+target_link_libraries(${EXEC1} PUBLIC -lm)
+
+add_executable(${EXEC2} src/ptss_dse_hrt.cpp src/ptss_test.cpp)
+target_include_directories(${EXEC2} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR})
+target_compile_options(${EXEC2} PRIVATE -std=c++11 -Wall)
+target_link_libraries(${EXEC2} PUBLIC -lm)

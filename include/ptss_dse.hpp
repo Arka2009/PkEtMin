@@ -1,3 +1,6 @@
+#ifndef __PTSS_DSE
+#define __PTSS_DSE
+
 #include <iostream>
 #include <vector>
 #include <set>
@@ -8,13 +11,11 @@
 #include <queue>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
+#include "ptss_config.hpp"
 
 using namespace std;
 
-// Global configuration
-#define NPH 5
-#define M   16
-#define D   216
+
 
 typedef vector<int> alloc_t;
 typedef set<alloc_t> all_alloc_t;
@@ -62,7 +63,10 @@ double compute_estimated_util(const alloc_t &x);
 double compute_pkpower(const alloc2_t &x);
 unsigned int compute_bottleneck(const alloc2_t &x);
 void balance_out(alloc2_t &x);
-void construct_alloc(all_alloc_t &vvi, int ph);
+
+/* Utility functions */
+void construct_alloc(all_alloc2_t &vvi, const vector<int> &bench, int ph);
+unsigned int gen_bench_id();
 
 class ptss_DSE {
     private :
@@ -106,13 +110,6 @@ class ptss_DSE {
         void display();
 };
 
-/* Benchmarks */
-#define BENCH_LACE_DFS           0x400
-#define BENCH_LACE_CILKSORT      0x401
-#define BENCH_LACE_FIB           0x402
-#define BENCH_LACE_PI            0x403
-#define BENCH_LACE_QUEENS        0x404
-
 class ptss_DSE_hrt {
     private :
         /*
@@ -125,18 +122,30 @@ class ptss_DSE_hrt {
 
         /* Optimal Point, just for testing */
         alloc2_t opt_point;
-        alloc2_t ext_point; /* Point of Highest Power Consumption */
-        /* Corresponding Objective Function Value */
-        double pkp_power;
-        double exec_time;
+        alloc2_t ext_point; /* Point of Highest Power Consumption, also serves as an init_point in some algorithms */
+        alloc2_t cvx_point; /* Optimal Point found using continuous relaxation */
+
+        /* Corresponding Objective Function (and constraint) Value */
+        double opt_pkp_power;
+        double opt_exec_time;
 
     public :
         ptss_DSE_hrt();
         ptss_DSE_hrt(double);
 
+        /* triggers the execution time computation */
+        ptss_DSE_hrt(double deadline,bool enable_oracle);
+
         // Evaluate all points in the Design Space, and return the optimal value
-        double evaluate_all();
+        double oracle();
 
         // Display
         void display();
+        vector<int> bench; /* Benchmark Composition */
+
+        // Getters
+        alloc2_t& get_init_point();
+
 };
+
+#endif

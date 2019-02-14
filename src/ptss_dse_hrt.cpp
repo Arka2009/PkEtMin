@@ -7,9 +7,11 @@
 #include <chrono>
 #include <exception>
 #include <queue>
+#include <cstdlib>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
 #include "ptss_dse.hpp"
+#include "ptss_config.hpp"
 
 using namespace std;
 
@@ -68,8 +70,41 @@ double estimate_exec_time(const int x, const int bench) {
             y = 1/(0.005266330309541947*x + 0.0021923143697295602);
             break;
         }
+        case BENCH_PRSC_BLACKSCHOLES : {
+            y = 1/(0.009683975849832148*log(x) - 0.002893833328927599);
+            break;
+        }
+
+        case BENCH_PRSC_STREAMCLUSTER:{
+            y = 1/(0.0024794976904501873*log(x) - 0.0007496878381248601);
+            break;
+        }
+
+        case BENCH_PRSC_CANNEAL : {
+            y = 1/(2.153404950919569e-05*log(x) + 0.0001677868522003634);
+            break;
+        }
+
+        // case BENCH_PRSC_SWAPTIONS : {
+
+        // }
+
+        case BENCH_PRSC_FLUIDANIMATE : {
+            y = 1/(0.0021638291897166048*log(x) - 0.001202365402456029);
+            break;
+        }
+
+        case BENCH_PRSC_BODYTRACK : {
+            y = 1/(0.003533669349872262*log(x) - 0.0027172901605883966);
+            break;
+        }
+
+        case BENCH_PRSC_DEDUP : {
+            y = 1/(0.0002555000090127519*log(x) - 7.198705194815577e-05);
+            break;
+        }
         default : {
-            cerr << "Unrecognized Benchmark";
+            cerr << "(ET) Unrecognized Benchmark : " << bench << endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -100,7 +135,7 @@ int inv_estimate_exec_time(const double y, const int bench) {
             break;
         }
         default : {
-            cerr << "Unrecognized Benchmark";
+            cerr << "(INV-ET) Unrecognized Benchmark : " << bench << endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -131,8 +166,41 @@ double estimate_power(const int x, const int bench) {
             y = 3.3427689873417723*x + 2.140996835443037;
             break;
         }
+        case BENCH_PRSC_BLACKSCHOLES : {
+            y = 1.5027499999999998*x + 4.669250000000002;
+            break;
+        }
+
+        case BENCH_PRSC_STREAMCLUSTER:{
+            y = 2.299642857142857*x + 3.7145476190476217;
+            break;
+        }
+
+        case BENCH_PRSC_CANNEAL : {
+            y = 0.6275357142857142*x + 1.810845238095241;
+            break;
+        }
+
+        // case BENCH_PRSC_SWAPTIONS : {
+
+        // }
+
+        case BENCH_PRSC_FLUIDANIMATE : {
+            y = 2.130357142857143*x + 0.834642857142855;
+            break;
+        }
+
+        case BENCH_PRSC_BODYTRACK : {
+            y = 1.7288351648351648*x + 3.2989230769230744;
+            break;
+        }
+
+        case BENCH_PRSC_DEDUP : {
+            y = 0.8776666666666665*x + 3.5970000000000013;
+            break;
+        }
         default : {
-            cerr << "Unrecognized Benchmark";
+            cerr << "(POWER) Unrecognized Benchmark : " << bench << endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -162,8 +230,41 @@ int inv_estimate_power(const double y, const int bench) {
             x = floor((y-2.140996835443037)*(1/3.3427689873417723));
             break;
         }
+        case BENCH_PRSC_BLACKSCHOLES : {
+            x = floor((y-4.669250000000002)*(1/1.5027499999999998));
+            break;
+        }
+
+        case BENCH_PRSC_STREAMCLUSTER:{
+            x = floor((y-3.7145476190476217)*(1/2.299642857142857));
+            break;
+        }
+
+        case BENCH_PRSC_CANNEAL : {
+            x = floor((y-1.810845238095241)*(1/0.6275357142857142));
+            break;
+        }
+
+        // case BENCH_PRSC_SWAPTIONS : {
+
+        // }
+
+        case BENCH_PRSC_FLUIDANIMATE : {
+            x = floor((y-0.834642857142855)*(1/2.130357142857143));
+            break;
+        }
+
+        case BENCH_PRSC_BODYTRACK : {
+            x = floor((y-3.2989230769230744)*(1/1.7288351648351648));
+            break;
+        }
+
+        case BENCH_PRSC_DEDUP : {
+            x = floor((y-3.5970000000000013)*(1/0.8776666666666665));
+            break; 
+        }
         default : {
-            cerr << "Unrecognized Benchmark";
+            cerr << "(INV-POWER) Unrecognized Benchmark : " << bench << endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -234,9 +335,12 @@ std::ostream& operator<<(std::ostream& os, const all_alloc2_t& vvi) {
   return os;
 }
 
-void construct_alloc(all_alloc2_t &vvi, int ph) {
+void construct_alloc(all_alloc2_t &vvi, const vector<int> &bench, int ph) {
     alloc2_t vi2;
     static long unsigned int cnt = 0;
+    static double opt_pkp_power  = 0.0;
+    static double opt_exec_time  = 0.0;
+    double et, pkp;
     long unsigned int r   = M;
     long unsigned int dec;
     long unsigned int j   = 0;
@@ -250,7 +354,8 @@ void construct_alloc(all_alloc2_t &vvi, int ph) {
             //cout << dec%r + 1 << ",";
             phase_t phinfo;
             phinfo.alloc = dec%r + 1;
-            phinfo.bench_id = 0x400 + j;
+            phinfo.bench_id = bench[j];
+            // cout << "Bench Created : " << phinfo.bench_id << endl;
 
             vi2.push_back(phinfo);
             dec = dec/r;
@@ -259,25 +364,58 @@ void construct_alloc(all_alloc2_t &vvi, int ph) {
         //cout << "}\n";
         return;
     }
-    for (int m = 1; m <= M; m++) {
-        construct_alloc(vvi,ph+1);
+    for (int m = LLIM; m <= ULIM; m++) {
+        construct_alloc(vvi,bench,ph+1);
     }
 }
 
+unsigned int gen_bench_id() {
+    unsigned int a = BENCH_PRSC_BLACKSCHOLES + (rand() % 6);
+    return a;
+} 
+
 // Create All points
 ptss_DSE_hrt::ptss_DSE_hrt() {
-    construct_alloc(this->search_space,0);
+    /* Create a mix of benchmarks */
+    int a;
+    for (int i = 0; i < NPH; i++) {
+        a = gen_bench_id();
+        this->bench.push_back(a);
+    }
+    construct_alloc(this->search_space,this->bench,0);
     this->deadline = 200;
+
+    /* Create an extreme point*/
+    for (int i = 0; i < NPH; i++) {
+        phase_t p(this->bench[i],M);
+        this->ext_point.push_back(p);
+    }
 }
 
 ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
-    construct_alloc(this->search_space,0);
+    /* Create a mix of benchmarks */
+    int a;
+    for (int i = 0; i < NPH; i++) {
+        a = gen_bench_id();
+        this->bench.push_back(a);
+    }
+    construct_alloc(this->search_space,this->bench,0);
     this->deadline = deadline;
+
+    /* Create an extreme point*/
+    for (int i = 0; i < NPH; i++) {
+        phase_t p(this->bench[i],ULIM);
+        this->ext_point.push_back(p);
+    }
+}
+
+ptss_DSE_hrt::ptss_DSE_hrt(double deadline,bool enable_oracle) {
+
 }
 
 // Evaluate all points (Brute Force)
-double ptss_DSE_hrt::evaluate_all() {
-    this->pkp_power = 1e9;
+double ptss_DSE_hrt::oracle() {
+    this->opt_pkp_power = 1e9;
 
     // cout << "Search space size " << search_space.size();
     for(auto it = search_space.begin();
@@ -287,17 +425,21 @@ double ptss_DSE_hrt::evaluate_all() {
         double et = compute_execution_time(*it);
         double pkp = compute_pkpower(*it);
 
-        if (et <= this->deadline && pkp <= this->pkp_power) {
+        if (et <= this->deadline && pkp <= this->opt_pkp_power) {
             this->opt_point = *it;
-            this->pkp_power = pkp;
-            this->exec_time = et;
+            this->opt_pkp_power = pkp;
+            this->opt_exec_time = et;
         }
         // cout << *it << "," << risk << "," << util << "\n";
         // usleep(50);
     }
     cout << "Optimal Point : " << this->opt_point << "\n";
-    cout << "Exec Time:" << this->exec_time << ",Power:" << this->pkp_power << "\n";
-    return (this->pkp_power);
+    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
+    return (this->opt_pkp_power);
+}
+
+alloc2_t& ptss_DSE_hrt::get_init_point() {
+    return this->ext_point;
 }
 
 // a == b ?
