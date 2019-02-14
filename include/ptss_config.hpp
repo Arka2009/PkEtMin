@@ -4,7 +4,7 @@
 // Global configuration
 #define NPH     5
 #define M       32
-#define D       216
+// #define D       216
 #define LLIM    3
 #define ULIM    M
 

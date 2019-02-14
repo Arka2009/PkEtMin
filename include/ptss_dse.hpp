@@ -65,7 +65,13 @@ unsigned int compute_bottleneck(const alloc2_t &x);
 void balance_out(alloc2_t &x);
 
 /* Utility functions */
-void construct_alloc(all_alloc2_t &vvi, const vector<int> &bench, int ph);
+void construct_alloc(all_alloc2_t &vvi, \
+                     const vector<int> &bench, \
+                     double deadline, \
+                     int ph,\
+                     alloc2_t &opt_point,\
+                     double &opt_pkp_power,\
+                     double &opt_exec_time);
 unsigned int gen_bench_id();
 
 class ptss_DSE {
@@ -133,9 +139,6 @@ class ptss_DSE_hrt {
         ptss_DSE_hrt();
         ptss_DSE_hrt(double);
 
-        /* triggers the execution time computation */
-        ptss_DSE_hrt(double deadline,bool enable_oracle);
-
         // Evaluate all points in the Design Space, and return the optimal value
         double oracle();
 
@@ -145,6 +148,8 @@ class ptss_DSE_hrt {
 
         // Getters
         alloc2_t& get_init_point();
+        double get_opt_pkp_power();
+        double get_opt_exec_time();
 
 };
 

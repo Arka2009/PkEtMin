@@ -335,11 +335,15 @@ std::ostream& operator<<(std::ostream& os, const all_alloc2_t& vvi) {
   return os;
 }
 
-void construct_alloc(all_alloc2_t &vvi, const vector<int> &bench, int ph) {
+void construct_alloc(all_alloc2_t &vvi, \
+                     const vector<int> &bench, \
+                     double deadline, \
+                     int ph,\
+                     alloc2_t &opt_point,\
+                     double &opt_pkp_power,\
+                     double &opt_exec_time) {
     alloc2_t vi2;
     static long unsigned int cnt = 0;
-    static double opt_pkp_power  = 0.0;
-    static double opt_exec_time  = 0.0;
     double et, pkp;
     long unsigned int r   = M;
     long unsigned int dec;
@@ -360,12 +364,22 @@ void construct_alloc(all_alloc2_t &vvi, const vector<int> &bench, int ph) {
             vi2.push_back(phinfo);
             dec = dec/r;
         }
+        /* Oracle Evaluation */
+        et = compute_execution_time(vi2);
+        if (et <= deadline) {
+            pkp = compute_pkpower(vi2);
+            if (pkp <= opt_pkp_power) {
+                opt_point     = vi2;
+                opt_pkp_power = pkp;
+                opt_exec_time = et;
+            }
+        }
         vvi.insert(vi2);
         //cout << "}\n";
         return;
     }
     for (int m = LLIM; m <= ULIM; m++) {
-        construct_alloc(vvi,bench,ph+1);
+        construct_alloc(vvi,bench,deadline,ph+1,opt_point,opt_pkp_power,opt_exec_time);
     }
 }
 
@@ -382,14 +396,24 @@ ptss_DSE_hrt::ptss_DSE_hrt() {
         a = gen_bench_id();
         this->bench.push_back(a);
     }
-    construct_alloc(this->search_space,this->bench,0);
     this->deadline = 200;
+    alloc2_t opt_point2;
+    double opt_pkp_power2 = numeric_limits<double>::infinity();
+    double opt_exec_time2 = 0.0;
+    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
+    this->opt_pkp_power = opt_pkp_power2;
+    this->opt_exec_time = opt_exec_time2;
+    this->opt_point     = opt_point2;
 
     /* Create an extreme point*/
     for (int i = 0; i < NPH; i++) {
         phase_t p(this->bench[i],M);
         this->ext_point.push_back(p);
     }
+
+    /* Display the Oracle */
+    cout << "Optimal Point : " << this->opt_point << "\n";
+    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
 }
 
 ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
@@ -399,18 +423,32 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
         a = gen_bench_id();
         this->bench.push_back(a);
     }
-    construct_alloc(this->search_space,this->bench,0);
     this->deadline = deadline;
+    double opt_pkp_power2 = numeric_limits<double>::infinity();
+    double opt_exec_time2 = 0.0;
+    alloc2_t opt_point2;
+    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
+    this->opt_pkp_power = opt_pkp_power2;
+    this->opt_exec_time = opt_exec_time2;
+    this->opt_point     = opt_point2;
 
-    /* Create an extreme point*/
+    /* Create an extreme point */
     for (int i = 0; i < NPH; i++) {
         phase_t p(this->bench[i],ULIM);
         this->ext_point.push_back(p);
     }
+
+    /* Display the Oracle */
+    cout << "Optimal Point : " << this->opt_point << "\n";
+    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
 }
 
-ptss_DSE_hrt::ptss_DSE_hrt(double deadline,bool enable_oracle) {
+double ptss_DSE_hrt::get_opt_pkp_power() {
+    return this->opt_pkp_power;
+}
 
+double ptss_DSE_hrt::get_opt_exec_time() {
+    return this->opt_exec_time;
 }
 
 // Evaluate all points (Brute Force)
