@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     struct timeval t1, t2;
     gettimeofday(&t1,NULL);
     ptss_DSE_hrt obj(deadline);
-    cout << "Search Space Created "<<endl;
+    // cout << "Search Space Created "<<endl;
 
     // alloc2_t testp = {phase_t(6,8),phase_t(9,10),phase_t(8,10),phase_t(6,8),phase_t(10,16)};
     // obj.contains_point(testp);

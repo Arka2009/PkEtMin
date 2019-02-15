@@ -272,9 +272,9 @@ void construct_alloc(all_alloc2_t &vvi, \
                 opt_exec_time = et;
             }
         }
-        if (et >= 0) {
-            vvi.insert(vi2);
-        }
+        // if (et >= 0) {
+        //     vvi.insert(vi2);
+        // }
         //cout << "}\n";
         return;
     }
@@ -289,7 +289,7 @@ unsigned int gen_bench_id() {
 } 
 
 
-void ptss_DSE_hrt::compute_cvx() {
+double ptss_DSE_hrt::compute_cvx() {
     nlopt::opt opt(nlopt::LD_MMA, NPH+1);
     // nlopt::opt opt(nlopt::LN_SBPLX, NPH+1);
 
@@ -336,8 +336,7 @@ void ptss_DSE_hrt::compute_cvx() {
     try{
         //nlopt::result result = 
         opt.optimize(x, minf);
-        cout << "CVX-Opt f(" << x << ") = "
-            << std::setprecision(10) << minf << std::endl;
+        // cout << "CVX-Opt f(" << x << ") = "<< std::setprecision(10) << minf << std::endl;
         // std::cout << "found minimum after " << count <<" evaluations\n";
 
         /* Update the cvx point */
@@ -349,16 +348,18 @@ void ptss_DSE_hrt::compute_cvx() {
             this->cvx_point.push_back(tmp);
         }
 
-        cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
-        cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
-        cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
+        // cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
+        // cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
+        // cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
+        //
+        return minf;
     }
     catch(std::exception &e) {
         std::cout << "nlopt failed: " << e.what() << std::endl;
     }
 }
 
-void ptss_DSE_hrt::bench_create() {
+double ptss_DSE_hrt::bench_create() {
     /* Create a mix of benchmarks */
     int a;
     for (int i = 0; i < NPH; i++) {
@@ -370,7 +371,8 @@ void ptss_DSE_hrt::bench_create() {
         b_p.push_back(BP[a]);
     }
     
-    this->compute_cvx();
+    double minf = this->compute_cvx();
+    return minf;
 }
 
 bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
@@ -414,7 +416,7 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     //     this->bench.push_back(a);
     // }
     this->deadline = deadline;
-    this->bench_create();
+    double minf = this->bench_create();
     double opt_pkp_power2 = numeric_limits<double>::infinity();
     double opt_exec_time2 = 0.0;
     alloc2_t opt_point2;
@@ -430,8 +432,11 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     }
 
     /* Display the Oracle */
-    cout << "Optimal Point : " << this->opt_point << "\n";
-    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
+    // cout << "Optimal Point : " << this->opt_point << "\n";
+    // cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
+
+    cout << "CVX-Cont="<<minf<<",CVX-Disc="<<compute_pkpower(this->cvx_point)\
+         << ",Oracle-Opt="<<this->opt_pkp_power<<endl;
 }
 
 double ptss_DSE_hrt::get_opt_pkp_power() {

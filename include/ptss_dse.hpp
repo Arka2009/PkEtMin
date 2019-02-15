@@ -143,8 +143,8 @@ class ptss_DSE_hrt {
         vector<double> a_p;
         vector<double> b_p;
 
-        void compute_cvx();
-        void bench_create();
+        double compute_cvx();
+        double bench_create();
 
     public :
         ptss_DSE_hrt();
