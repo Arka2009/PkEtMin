@@ -46,6 +46,7 @@ bool is_incomparable(const alloc2_t &a, const alloc2_t &b);
 bool lex_comp(const alloc2_t &a, const alloc2_t &b);
 
 
+// ostream& operator<<(ostream& os, const vector<double>& pht);
 ostream& operator<<(ostream& os, const phase_t& pht);
 ostream& operator<<(ostream& os, const alloc_t& vi);
 ostream& operator<<(ostream& os, const all_alloc_t& vvi);
@@ -56,7 +57,7 @@ double compute_risk(const alloc_t &x);
 double compute_execution_time(const alloc_t &x);
 double compute_execution_time(const alloc2_t &x);
 double estimate_exec_time(const int x, const int bench);
-int inv_estimate_exec_time(const double y, const int bench);
+// int inv_estimate_exec_time(const double y, const int bench);
 double estimate_power(const int x, const int bench);
 int inv_estimate_power(const double y, const int bench);
 double compute_estimated_util(const alloc_t &x);
@@ -135,6 +136,16 @@ class ptss_DSE_hrt {
         double opt_pkp_power;
         double opt_exec_time;
 
+        /* Parameter values for power and execution time characteristics */
+        vector<int> bench; /* Benchmark Composition */
+        vector<double> a_et;
+        vector<double> b_et;
+        vector<double> a_p;
+        vector<double> b_p;
+
+        void compute_cvx();
+        void bench_create();
+
     public :
         ptss_DSE_hrt();
         ptss_DSE_hrt(double);
@@ -144,13 +155,17 @@ class ptss_DSE_hrt {
 
         // Display
         void display();
-        vector<int> bench; /* Benchmark Composition */
 
         // Getters
         alloc2_t& get_init_point();
         double get_opt_pkp_power();
         double get_opt_exec_time();
 
+        // Membership testing
+        bool contains_point(const alloc2_t&);
+
 };
 
+
+/* Objective Function Constraints */
 #endif

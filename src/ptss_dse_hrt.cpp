@@ -4,16 +4,86 @@
 #include <iterator>
 #include <math.h>
 #include <cmath>
+#include <stdexcept>
 #include <chrono>
 #include <exception>
 #include <queue>
 #include <cstdlib>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
+#include <nlopt.hpp>
 #include "ptss_dse.hpp"
 #include "ptss_config.hpp"
+#include "ptss_nlopt.hpp"
 
 using namespace std;
+
+// AET 
+static double AET[] = {\
+0.0052912772458832795,\
+0.004254273510905619,\
+0.005266330309541947,\
+0.003688517486111831,\
+0.003959440926636103,\
+0.009683975849832148,\
+0.0024794976904501873,\
+2.153404950919569e-05,\
+0.0021638291897166048,\
+0.003533669349872262,\
+0.0002555000090127519};
+
+static double BET[] = {\
+0.002118298041182201,\
+-0.0008304322052644017,\
+0.0021923143697295602,\
+0.0011143885733635485,\
+0.001000559321893281,\
+-0.002893833328927599,\
+-0.0007496878381248601,\
+0.0001677868522003634,\
+-0.001202365402456029,\
+-0.0027172901605883966,\
+-7.198705194815577e-05};
+
+static double AP[] = {\
+2.9905877034358053,\
+2.0279769439421345,\
+3.3427689873417723,\
+2.947167721518987,\
+3.176307692307692,\
+1.5027499999999998,\
+2.299642857142857,\
+0.6275357142857142,\
+2.130357142857143,\
+1.7288351648351648,\
+0.8776666666666665};
+
+static double BP[] = {\
+1.9919258589511664,\
+0.3829859855334483,\
+2.140996835443037,\
+1.758180379746836,\
+1.7091208791208778,\
+4.669250000000002,\
+3.7145476190476217,\
+1.810845238095241,\
+0.834642857142855,\
+3.2989230769230744,\
+3.5970000000000013};
+
+/* Lower Limit of core allocation for different phases */
+static unsigned int LLIM[] = {\
+1,\
+1,\
+1,\
+1,\
+1,\
+2,\
+2,\
+2,\
+2,\
+3,\
+2};
 
 bool phase_t::operator ==(const phase_t &b) const {
     return ((this->bench_id == b.bench_id) && (this->alloc == b.alloc));
@@ -48,238 +118,59 @@ phase_t::phase_t(unsigned int bench_id,unsigned int alloc) : bench_id{bench_id},
 phase_t::phase_t() : bench_id{0}, alloc{0} {}
 
 double estimate_exec_time(const int x, const int bench) {
-    double y;
-    switch (bench) {
-        case BENCH_LACE_CILKSORT : {
-            y = 1/(0.004254273510905619*x - 0.0008304322052644017);
-            break;
-        }
-        case BENCH_LACE_DFS : {
-            y = 1/(0.0052912772458832795*x + 0.002118298041182201);
-            break;
-        }
-        case BENCH_LACE_PI : {
-            y = 1/(0.003688517486111831*x + 0.0011143885733635485);
-            break;
-        }
-        case BENCH_LACE_QUEENS : {
-            y = 1/(0.003959440926636103*x + 0.001000559321893281);
-            break;
-        }
-        case BENCH_LACE_FIB : {
-            y = 1/(0.005266330309541947*x + 0.0021923143697295602);
-            break;
-        }
-        case BENCH_PRSC_BLACKSCHOLES : {
-            y = 1/(0.009683975849832148*log(x) - 0.002893833328927599);
-            break;
-        }
-
-        case BENCH_PRSC_STREAMCLUSTER:{
-            y = 1/(0.0024794976904501873*log(x) - 0.0007496878381248601);
-            break;
-        }
-
-        case BENCH_PRSC_CANNEAL : {
-            y = 1/(2.153404950919569e-05*log(x) + 0.0001677868522003634);
-            break;
-        }
-
-        // case BENCH_PRSC_SWAPTIONS : {
-
-        // }
-
-        case BENCH_PRSC_FLUIDANIMATE : {
-            y = 1/(0.0021638291897166048*log(x) - 0.001202365402456029);
-            break;
-        }
-
-        case BENCH_PRSC_BODYTRACK : {
-            y = 1/(0.003533669349872262*log(x) - 0.0027172901605883966);
-            break;
-        }
-
-        case BENCH_PRSC_DEDUP : {
-            y = 1/(0.0002555000090127519*log(x) - 7.198705194815577e-05);
-            break;
-        }
-        default : {
-            cerr << "(ET) Unrecognized Benchmark : " << bench << endl;
-            exit(EXIT_FAILURE);
-        }
+    if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        throw invalid_argument( "Unrecognized Benchmark" );
     }
+    double a = AET[bench];
+    double b = BET[bench];
+    double y;
+    if (bench <= BENCH_LACE_QUEENS)
+        y = 1/(a*x + b);
+    else
+        y = 1/(a*log(x) + b);
     return y;
 }
 
-int inv_estimate_exec_time(const double y, const int bench) {
-    double x;
-    switch (bench) {
-        case BENCH_LACE_CILKSORT : {
-            x = ceil(((1/y) + 0.0008304322052644017)*(1/0.004254273510905619));
-            break;
-        }
-        case BENCH_LACE_DFS : {
-            x = ceil(((1/y) - 0.002118298041182201)*(1/0.0052912772458832795));
-            break;
-        }
-        case BENCH_LACE_PI : {
-            x = ceil(((1/y) - 0.0011143885733635485)*(1/0.003688517486111831));
-            break;
-        }
-        case BENCH_LACE_QUEENS : {
-            x = ceil(((1/y) - 0.001000559321893281)*(1/0.003959440926636103));
-            break;
-        }
-        case BENCH_LACE_FIB : {
-            x = ceil(((1/y) - 0.0021923143697295602)*(1/0.005266330309541947));
-            break;
-        }
-        default : {
-            cerr << "(INV-ET) Unrecognized Benchmark : " << bench << endl;
-            exit(EXIT_FAILURE);
-        }
-    }
-    int x2 = (int)x;
-    return x2;
-}
-
 double estimate_power(const int x, const int bench) {
-    double y;
-    switch (bench) {
-        case BENCH_LACE_CILKSORT : {
-            y = 2.0279769439421345*x + 0.3829859855334483;
-            break;
-        }
-        case BENCH_LACE_DFS : {
-            y = 2.9905877034358053*x + 1.9919258589511664;
-            break;
-        }
-        case BENCH_LACE_PI : {
-            y = 2.947167721518987*x + 1.758180379746836;
-            break;
-        }
-        case BENCH_LACE_QUEENS : {
-            y = 3.176307692307692*x + 1.7091208791208778;
-            break;
-        }
-        case BENCH_LACE_FIB : {
-            y = 3.3427689873417723*x + 2.140996835443037;
-            break;
-        }
-        case BENCH_PRSC_BLACKSCHOLES : {
-            y = 1.5027499999999998*x + 4.669250000000002;
-            break;
-        }
-
-        case BENCH_PRSC_STREAMCLUSTER:{
-            y = 2.299642857142857*x + 3.7145476190476217;
-            break;
-        }
-
-        case BENCH_PRSC_CANNEAL : {
-            y = 0.6275357142857142*x + 1.810845238095241;
-            break;
-        }
-
-        // case BENCH_PRSC_SWAPTIONS : {
-
-        // }
-
-        case BENCH_PRSC_FLUIDANIMATE : {
-            y = 2.130357142857143*x + 0.834642857142855;
-            break;
-        }
-
-        case BENCH_PRSC_BODYTRACK : {
-            y = 1.7288351648351648*x + 3.2989230769230744;
-            break;
-        }
-
-        case BENCH_PRSC_DEDUP : {
-            y = 0.8776666666666665*x + 3.5970000000000013;
-            break;
-        }
-        default : {
-            cerr << "(POWER) Unrecognized Benchmark : " << bench << endl;
-            exit(EXIT_FAILURE);
-        }
+    if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        throw invalid_argument( "Unrecognized Benchmark" );
     }
+    double a = AP[bench];
+    double b = BP[bench];
+    double y;
+    y = a*x + b;
     return y;
 }
 
 int inv_estimate_power(const double y, const int bench) {
-    double x;
-    switch (bench) {
-        case BENCH_LACE_CILKSORT : {
-            x = floor((y - 0.3829859855334483)*(1/2.0279769439421345));
-            break;
-        }
-        case BENCH_LACE_DFS : {
-            x = floor((y-1.9919258589511664)*(1/2.9905877034358053));
-            break;
-        }
-        case BENCH_LACE_PI : {
-            x = floor((y-1.758180379746836)*(1/2.947167721518987));
-            break;
-        }
-        case BENCH_LACE_QUEENS : {
-            x = floor((y-1.7091208791208778)*(1/3.176307692307692));
-            break;
-        }
-        case BENCH_LACE_FIB : {
-            x = floor((y-2.140996835443037)*(1/3.3427689873417723));
-            break;
-        }
-        case BENCH_PRSC_BLACKSCHOLES : {
-            x = floor((y-4.669250000000002)*(1/1.5027499999999998));
-            break;
-        }
-
-        case BENCH_PRSC_STREAMCLUSTER:{
-            x = floor((y-3.7145476190476217)*(1/2.299642857142857));
-            break;
-        }
-
-        case BENCH_PRSC_CANNEAL : {
-            x = floor((y-1.810845238095241)*(1/0.6275357142857142));
-            break;
-        }
-
-        // case BENCH_PRSC_SWAPTIONS : {
-
-        // }
-
-        case BENCH_PRSC_FLUIDANIMATE : {
-            x = floor((y-0.834642857142855)*(1/2.130357142857143));
-            break;
-        }
-
-        case BENCH_PRSC_BODYTRACK : {
-            x = floor((y-3.2989230769230744)*(1/1.7288351648351648));
-            break;
-        }
-
-        case BENCH_PRSC_DEDUP : {
-            x = floor((y-3.5970000000000013)*(1/0.8776666666666665));
-            break; 
-        }
-        default : {
-            cerr << "(INV-POWER) Unrecognized Benchmark : " << bench << endl;
-            exit(EXIT_FAILURE);
-        }
+    if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        throw invalid_argument( "Unrecognized Benchmark" );
     }
-    int x2  = (int)x;
-    return x2;
+    double a = AP[bench];
+    double b = BP[bench];
+    double x;
+    x = (1/a)*(y-b);
+    return x;
 }
 
-/* Execution Time */
+/* 
+ * Extrapolation of et can make the values often negative 
+ * These need to be discarded
+ */
 double compute_execution_time(const alloc2_t &x) {
     double sum = 0.0;
+    double et  = 0.0;
     for(auto jt = x.begin(); jt != x.end(); jt++) {
-        sum += estimate_exec_time(jt->alloc,jt->bench_id);
+        et = estimate_exec_time(jt->alloc,jt->bench_id);
+        if (et >= 0.0)
+            sum += et;
+        else
+            return -HUGE_VAL;
+        
     }
     return sum;
 }
+
 
 /* Compute the Peak Power */
 double compute_pkpower(const alloc2_t &x) {
@@ -311,15 +202,21 @@ void balance_out(alloc2_t &x) {
 
 // /* Display Routines */
 std::ostream& operator<<(std::ostream& os, const alloc2_t& vi) {
-//   os << "(|";
-//   std::copy(vi.begin(), vi.end(), std::ostream_iterator<phase_t>(os, "|"));
-//   os << ")";
     unsigned int i;
     os << "<";
     for (i = 0; i < vi.size(); i++) {
         os << vi[i] ;
         os << ",";
     }
+    os << ">";
+    return os;
+}
+
+/* Display for vector */
+ostream& operator<<(ostream& os, const std::vector<double> pht) {
+    os << "Vector<" ;
+    for (unsigned int i = 0; i < pht.size(); i++)
+        os << pht[i] << "|";
     os << ">";
     return os;
 }
@@ -350,6 +247,7 @@ void construct_alloc(all_alloc2_t &vvi, \
     long unsigned int j   = 0;
 
     if (ph == NPH) {
+        // cout << "deadline (calloc) : " << deadline << endl;
         //cout << "ph : " << ph << ", invoc : " << cnt << endl;
         dec = cnt++;
 
@@ -366,7 +264,7 @@ void construct_alloc(all_alloc2_t &vvi, \
         }
         /* Oracle Evaluation */
         et = compute_execution_time(vi2);
-        if (et <= deadline) {
+        if (et <= deadline && et >= 0) {
             pkp = compute_pkpower(vi2);
             if (pkp <= opt_pkp_power) {
                 opt_point     = vi2;
@@ -374,11 +272,13 @@ void construct_alloc(all_alloc2_t &vvi, \
                 opt_exec_time = et;
             }
         }
-        vvi.insert(vi2);
+        if (et >= 0) {
+            vvi.insert(vi2);
+        }
         //cout << "}\n";
         return;
     }
-    for (int m = LLIM; m <= ULIM; m++) {
+    for (int m = 0; m < ULIM; m++) {
         construct_alloc(vvi,bench,deadline,ph+1,opt_point,opt_pkp_power,opt_exec_time);
     }
 }
@@ -388,17 +288,107 @@ unsigned int gen_bench_id() {
     return a;
 } 
 
-// Create All points
-ptss_DSE_hrt::ptss_DSE_hrt() {
+
+void ptss_DSE_hrt::compute_cvx() {
+    nlopt::opt opt(nlopt::LD_MMA, NPH+1);
+    // nlopt::opt opt(nlopt::LN_SBPLX, NPH+1);
+
+    /* Set the Box Constraints */
+    std::vector<double> lb(NPH+1);
+    std::vector<double> ub(NPH+1);
+    for (int i = 0; i < NPH; i++) {
+        lb[i] = LLIM[this->bench[i]];
+        ub[i] = ULIM;
+    }
+    lb[NPH] = 0.0;
+    ub[NPH] = HUGE_VAL;
+    opt.set_lower_bounds(lb);
+    opt.set_upper_bounds(ub);
+
+    /* Set the Parameters for inequality constraints */
+    // cout << "CVX Deadline " << this->deadline << endl;
+    vector<ptss_constraint_param> param;
+    param.push_back(ptss_constraint_param(this->a_et,this->b_et,this->deadline,-1));
+    for (int i = 0; i < NPH; i++) {
+        param.push_back(ptss_constraint_param(this->a_p,this->b_p,this->deadline,i));
+    }
+    opt.add_inequality_constraint(ptss_constraint_exectime, &param[0], 1e-8);
+    for (int i = 1; i <= NPH; i++) {
+        opt.add_inequality_constraint(ptss_constraint_power, &param[i], 1e-8);
+    }
+
+    /* Set the objective function */
+    opt.set_min_objective(ptss_func, NULL);
+
+    // opt.add_inequality_constraint(ptss_constraint_exectime, &data[1], 1e-8);
+    // opt.set_xtol_rel(1e-4);
+    opt.set_ftol_rel(1e-4);
+    vector<double> x(NPH+1);
+    vector<phase_t> c(NPH);
+    for (int i = 0; i < NPH; i++) {
+        c[i].alloc    = M;
+        c[i].bench_id = this->bench[i];
+        x[i] = M;
+    }
+    x[NPH] = compute_execution_time(c);
+    double minf;
+    
+    try{
+        //nlopt::result result = 
+        opt.optimize(x, minf);
+        cout << "CVX-Opt f(" << x << ") = "
+            << std::setprecision(10) << minf << std::endl;
+        // std::cout << "found minimum after " << count <<" evaluations\n";
+
+        /* Update the cvx point */
+        this->cvx_point.clear();
+        for (int i = 0; i < NPH; i++) {
+            phase_t tmp;
+            tmp.alloc    = ceil(x[i]);
+            tmp.bench_id = this->bench[i];
+            this->cvx_point.push_back(tmp);
+        }
+
+        cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
+        cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
+        cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
+    }
+    catch(std::exception &e) {
+        std::cout << "nlopt failed: " << e.what() << std::endl;
+    }
+}
+
+void ptss_DSE_hrt::bench_create() {
     /* Create a mix of benchmarks */
     int a;
     for (int i = 0; i < NPH; i++) {
         a = gen_bench_id();
         this->bench.push_back(a);
+        a_et.push_back(AET[a]);
+        b_et.push_back(BET[a]);
+        a_p.push_back(AP[a]);
+        b_p.push_back(BP[a]);
     }
+    
+    this->compute_cvx();
+}
+
+bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
+    bool ret = this->search_space.find(a) != this->search_space.end();
+    if (ret) {
+        cout << "point:"<<a<<",pkp:"<<compute_pkpower(a)<<",et:"<<compute_execution_time(a)<<endl;
+    } else {
+        cout << "point not found" << endl;
+    }
+    return ret;
+}
+
+// Create All points
+ptss_DSE_hrt::ptss_DSE_hrt() {
     this->deadline = 200;
+    this->bench_create();
     alloc2_t opt_point2;
-    double opt_pkp_power2 = numeric_limits<double>::infinity();
+    double opt_pkp_power2 = HUGE_VAL;
     double opt_exec_time2 = 0.0;
     construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
     this->opt_pkp_power = opt_pkp_power2;
@@ -417,13 +407,14 @@ ptss_DSE_hrt::ptss_DSE_hrt() {
 }
 
 ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
-    /* Create a mix of benchmarks */
-    int a;
-    for (int i = 0; i < NPH; i++) {
-        a = gen_bench_id();
-        this->bench.push_back(a);
-    }
+    // /* Create a mix of benchmarks */
+    // int a;
+    // for (int i = 0; i < NPH; i++) {
+    //     a = gen_bench_id();
+    //     this->bench.push_back(a);
+    // }
     this->deadline = deadline;
+    this->bench_create();
     double opt_pkp_power2 = numeric_limits<double>::infinity();
     double opt_exec_time2 = 0.0;
     alloc2_t opt_point2;

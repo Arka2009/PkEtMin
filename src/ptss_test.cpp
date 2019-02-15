@@ -27,7 +27,7 @@ void test_compute_execution_time() {
     double s = 0.0;
     
     for (int i = 0; i < 6; i++) {
-        a.push_back(phase_t(405+i,ULIM));
+        a.push_back(phase_t(5+i,3));
         // a.push_back(phase_t(409,1));
         // a.push_back(phase_t(408,2));
         // a.push_back(phase_t(406,1));
