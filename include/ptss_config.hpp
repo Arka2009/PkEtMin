@@ -2,10 +2,11 @@
 #define __PTSS_CONFIG
 
 // Global configuration
-#define NPH     5
+#define NPH     2
 #define M       16
 // #define LLIM    3
 #define ULIM    M
+extern unsigned int LLIM[];
 
 /* Benchmarks (ID) */
 #define BENCH_LACE_DFS                        0

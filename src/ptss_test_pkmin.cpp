@@ -29,9 +29,10 @@ int main(int argc, char **argv) {
     // alloc2_t testp = {phase_t(6,8),phase_t(9,10),phase_t(8,10),phase_t(6,8),phase_t(10,16)};
     // obj.contains_point(testp);
 
-    double pkp_opt = obj.get_opt_pkp_power();
+    // double pkp_opt = obj.get_opt_pkp_power();
     // alloc2_t dggd;
     // double pkp_opt2 = ptss_pkmin(obj.get_init_point(),deadline,&dggd);
+    obj.display();
     gettimeofday(&t2,NULL);
     double elapsed  = t2.tv_sec-t1.tv_sec;
 

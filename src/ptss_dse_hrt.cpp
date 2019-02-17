@@ -72,7 +72,7 @@ static double BP[] = {\
 3.5970000000000013};
 
 /* Lower Limit of core allocation for different phases */
-static unsigned int LLIM[] = {\
+unsigned int LLIM[] = {\
 1,\
 1,\
 1,\
@@ -331,7 +331,7 @@ double ptss_DSE_hrt::compute_cvx() {
         x[i] = M;
     }
     x[NPH] = compute_execution_time(c);
-    double minf;
+    double minf = 0.0;
     
     try{
         //nlopt::result result = 
@@ -348,15 +348,16 @@ double ptss_DSE_hrt::compute_cvx() {
             this->cvx_point.push_back(tmp);
         }
 
-        // cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
-        // cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
-        // cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
+        cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
+        cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
+        cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
         //
         return minf;
     }
     catch(std::exception &e) {
         std::cout << "nlopt failed: " << e.what() << std::endl;
     }
+    return minf;
 }
 
 double ptss_DSE_hrt::bench_create() {
@@ -372,6 +373,7 @@ double ptss_DSE_hrt::bench_create() {
     }
     
     double minf = this->compute_cvx();
+    this->cvx_pkp_min = minf;
     return minf;
 }
 
@@ -386,27 +388,7 @@ bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
 }
 
 // Create All points
-ptss_DSE_hrt::ptss_DSE_hrt() {
-    this->deadline = 200;
-    this->bench_create();
-    alloc2_t opt_point2;
-    double opt_pkp_power2 = HUGE_VAL;
-    double opt_exec_time2 = 0.0;
-    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
-    this->opt_pkp_power = opt_pkp_power2;
-    this->opt_exec_time = opt_exec_time2;
-    this->opt_point     = opt_point2;
-
-    /* Create an extreme point*/
-    for (int i = 0; i < NPH; i++) {
-        phase_t p(this->bench[i],M);
-        this->ext_point.push_back(p);
-    }
-
-    /* Display the Oracle */
-    cout << "Optimal Point : " << this->opt_point << "\n";
-    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
-}
+// ptss_DSE_hrt::ptss_DSE_hrt() : {}
 
 ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     // /* Create a mix of benchmarks */
@@ -416,13 +398,13 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     //     this->bench.push_back(a);
     // }
     this->deadline = deadline;
-    double minf = this->bench_create();
+    this->bench_create();
     double opt_pkp_power2 = numeric_limits<double>::infinity();
     double opt_exec_time2 = 0.0;
     alloc2_t opt_point2;
     construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
-    this->opt_pkp_power = opt_pkp_power2;
-    this->opt_exec_time = opt_exec_time2;
+    // this->opt_pkp_power = opt_pkp_power2;
+    // this->opt_exec_time = opt_exec_time2;
     this->opt_point     = opt_point2;
 
     /* Create an extreme point */
@@ -431,50 +413,51 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
         this->ext_point.push_back(p);
     }
 
+    /* Use a DGGD Algorithm */
+    this->ptss_pkmin();
+
     /* Display the Oracle */
-    // cout << "Optimal Point : " << this->opt_point << "\n";
-    // cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
-
-    cout << "CVX-Cont="<<minf<<",CVX-Disc="<<compute_pkpower(this->cvx_point)\
-         << ",Oracle-Opt="<<this->opt_pkp_power<<endl;
-}
-
-double ptss_DSE_hrt::get_opt_pkp_power() {
-    return this->opt_pkp_power;
-}
-
-double ptss_DSE_hrt::get_opt_exec_time() {
-    return this->opt_exec_time;
-}
-
-// Evaluate all points (Brute Force)
-double ptss_DSE_hrt::oracle() {
-    this->opt_pkp_power = 1e9;
-
-    // cout << "Search space size " << search_space.size();
-    for(auto it = search_space.begin();
-        it != search_space.end();
-        it++) {
-        
-        double et = compute_execution_time(*it);
-        double pkp = compute_pkpower(*it);
-
-        if (et <= this->deadline && pkp <= this->opt_pkp_power) {
-            this->opt_point = *it;
-            this->opt_pkp_power = pkp;
-            this->opt_exec_time = et;
-        }
-        // cout << *it << "," << risk << "," << util << "\n";
-        // usleep(50);
-    }
     cout << "Optimal Point : " << this->opt_point << "\n";
-    cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
-    return (this->opt_pkp_power);
+    cout << "Exec Time:" << compute_execution_time(this->opt_point) << ",Power:" << compute_pkpower(this->opt_point) << "\n";
+    // cout << "CVX-Cont="<<this->cvx_pkp_min<<",CVX-Disc="<<compute_pkpower(this->cvx_point)<<endl;
 }
 
-alloc2_t& ptss_DSE_hrt::get_init_point() {
-    return this->ext_point;
-}
+// double ptss_DSE_hrt::get_opt_pkp_power() {
+//     return this->opt_pkp_power;
+// }
+
+// double ptss_DSE_hrt::get_opt_exec_time() {
+//     return this->opt_exec_time;
+// }
+
+// // Evaluate all points (Brute Force)
+// double ptss_DSE_hrt::oracle() {
+//     this->opt_pkp_power = 1e9;
+
+//     // cout << "Search space size " << search_space.size();
+//     for(auto it = search_space.begin();
+//         it != search_space.end();
+//         it++) {
+        
+//         double et = compute_execution_time(*it);
+//         double pkp = compute_pkpower(*it);
+
+//         if (et <= this->deadline && pkp <= this->opt_pkp_power) {
+//             this->opt_point = *it;
+//             this->opt_pkp_power = pkp;
+//             this->opt_exec_time = et;
+//         }
+//         // cout << *it << "," << risk << "," << util << "\n";
+//         // usleep(50);
+//     }
+//     cout << "Optimal Point : " << this->opt_point << "\n";
+//     cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
+//     return (this->opt_pkp_power);
+// }
+
+// alloc2_t& ptss_DSE_hrt::get_init_point() {
+//     return this->cvx_point;
+// }
 
 // a == b ?
 bool is_eq(const alloc2_t &a, const alloc2_t &b) {
@@ -527,4 +510,20 @@ bool lex_comp(const alloc2_t &a, const alloc2_t &b) {
             return false;
     }
     return true;
+}
+
+
+void ptss_DSE_hrt::display() {
+    if (this->cvx_point.size() < NPH) {
+        throw invalid_argument("Did not create CVX Opt Point");
+    }
+    if (this->dggd_point.size() < NPH) {
+        throw invalid_argument("Did not create DGGD Opt Point");
+    }
+    if (this->opt_point.size() < NPH) {
+        throw invalid_argument("Did not create Oracle Opt Point");
+    }
+    cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD}," << compute_pkpower(this->opt_point) << ","\
+         << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) << endl;
+
 }

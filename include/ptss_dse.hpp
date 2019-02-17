@@ -127,14 +127,16 @@ class ptss_DSE_hrt {
         all_alloc2_t search_space;
         double deadline;
 
-        /* Optimal Point, just for testing */
-        alloc2_t opt_point;
-        alloc2_t ext_point; /* Point of Highest Power Consumption, also serves as an init_point in some algorithms */
-        alloc2_t cvx_point; /* Optimal Point found using continuous relaxation */
+        /* Allocation Points */
+        alloc2_t opt_point;  /* Oracle Computed */
+        alloc2_t ext_point;  /* Point of Highest Power Consumption, also serves as an init_point in some algorithms */
+        alloc2_t cvx_point;  /* Optimal Point found using continuous relaxation and then dicretization */
+        alloc2_t dggd_point; /* Point Found using discrete greedy gradient descent */
 
         /* Corresponding Objective Function (and constraint) Value */
-        double opt_pkp_power;
-        double opt_exec_time;
+        // double opt_pkp_power;
+        // double opt_exec_time;
+        double cvx_pkp_min;   /* Continuous domain minimum obj function value */
 
         /* Parameter values for power and execution time characteristics */
         vector<int> bench; /* Benchmark Composition */
@@ -147,22 +149,27 @@ class ptss_DSE_hrt {
         double bench_create();
 
     public :
-        ptss_DSE_hrt();
         ptss_DSE_hrt(double);
+        ptss_DSE_hrt() : ptss_DSE_hrt(2000) {};
+        
 
         // Evaluate all points in the Design Space, and return the optimal value
-        double oracle();
+        // double oracle();
 
         // Display
         void display();
 
         // Getters
-        alloc2_t& get_init_point();
-        double get_opt_pkp_power();
-        double get_opt_exec_time();
+        // alloc2_t& get_init_point();
+        // double get_opt_pkp_power();
+        // double get_opt_exec_time();
 
         // Membership testing
         bool contains_point(const alloc2_t&);
+
+        /* The DGGD algorithm (Discrete Greedy Gradient Descent also referred to as
+        pkmin in the paper) */
+        double ptss_pkmin();
 
 };
 
