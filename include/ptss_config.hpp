@@ -2,7 +2,8 @@
 #define __PTSS_CONFIG
 
 // Global configuration
-#define NPH     2
+#include "ptss_config_nph.hpp"
+
 #define M       16
 // #define LLIM    3
 #define ULIM    M

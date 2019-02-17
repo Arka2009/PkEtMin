@@ -43,7 +43,7 @@ void test_compute_execution_time() {
 }
 
 int main() {
-    srand(time(NULL));
+    //srand(time(NULL));
     // test_gen_bench_id();
     test_compute_execution_time();
 }

@@ -62,7 +62,7 @@ double estimate_power(const int x, const int bench);
 int inv_estimate_power(const double y, const int bench);
 double compute_estimated_util(const alloc_t &x);
 double compute_pkpower(const alloc2_t &x);
-unsigned int compute_bottleneck(const alloc2_t &x);
+set<unsigned int> compute_bottleneck(const alloc2_t &x);
 void balance_out(alloc2_t &x);
 
 /* Utility functions */

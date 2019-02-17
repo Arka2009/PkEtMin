@@ -12,6 +12,7 @@
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
 #include <nlopt.hpp>
+#include <algorithm>
 #include "ptss_dse.hpp"
 #include "ptss_config.hpp"
 #include "ptss_nlopt.hpp"
@@ -180,14 +181,35 @@ double compute_pkpower(const alloc2_t &x) {
     return pkp;
 }
 
-/* Compute the bottleneck phase */
-unsigned int compute_bottleneck(const alloc2_t &x) {
-    unsigned int idx = 0, i;
-    for(i = 0; i < x.size(); i++) {
-        if (estimate_power(x[idx].alloc,x[idx].bench_id) <  estimate_power(x[i].alloc,x[i].bench_id))
-            idx = i;
+/* Returns all the bottleneck phases (Those with highest power consumption) */
+set<unsigned int> compute_bottleneck(const alloc2_t &x) {
+    set<unsigned int> phs;
+    double etp[NPH];
+
+    /* Estimate the power of all phases */
+    for (unsigned int i = 0; i < x.size();i++)
+        etp[i] = estimate_power(x[i].alloc,x[i].bench_id);
+    const int N = sizeof(etp) / sizeof(double);
+    unsigned int least_idx = distance(etp, max_element(etp, etp + N));
+    double maxp = etp[least_idx];
+
+    // unsigned int idx = 0, i;
+    // for(i = 0; i < x.size(); i++) {
+    //     if (estimate_power(x[idx].alloc,x[idx].bench_id) <  estimate_power(x[i].alloc,x[i].bench_id)) {
+    //         idx  = i;
+    //         minp = estimate_power(x[idx].alloc,x[idx].bench_id);
+    //         cout << "minp** : "<<minp<<endl;
+    //     }
+    // }
+
+    /* Find all indices with maximum power consumption */
+    for(unsigned int i = 0; i < x.size();i++) {
+        // cout << "maxp : "<<maxp<<",power estimate : "<<estimate_power(x[i].alloc,x[i].bench_id)<<endl;
+        if (maxp == etp[i]) {
+            phs.insert(i);
+        }
     }
-    return idx;
+    return phs;
 }
 
 
@@ -320,8 +342,7 @@ double ptss_DSE_hrt::compute_cvx() {
     /* Set the objective function */
     opt.set_min_objective(ptss_func, NULL);
 
-    // opt.add_inequality_constraint(ptss_constraint_exectime, &data[1], 1e-8);
-    // opt.set_xtol_rel(1e-4);
+    /* Stopping Criteria and Initial Point*/
     opt.set_ftol_rel(1e-4);
     vector<double> x(NPH+1);
     vector<phase_t> c(NPH);
@@ -330,7 +351,7 @@ double ptss_DSE_hrt::compute_cvx() {
         c[i].bench_id = this->bench[i];
         x[i] = M;
     }
-    x[NPH] = compute_execution_time(c);
+    x[NPH] = compute_pkpower(c);
     double minf = 0.0;
     
     try{
@@ -348,6 +369,12 @@ double ptss_DSE_hrt::compute_cvx() {
             this->cvx_point.push_back(tmp);
         }
 
+        /* Display the continuous domain point */
+        cout <<"CVX-Opt continuous point x = <";
+        for (int i = 0; i < NPH+1; i++)
+            cout <<x[i]<<",";
+        cout<<">"<<endl;
+        cout << "CVX-Opt minf = " << minf << endl;
         cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
         cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
         cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
@@ -399,25 +426,31 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     // }
     this->deadline = deadline;
     this->bench_create();
-    double opt_pkp_power2 = numeric_limits<double>::infinity();
-    double opt_exec_time2 = 0.0;
-    alloc2_t opt_point2;
-    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
-    // this->opt_pkp_power = opt_pkp_power2;
-    // this->opt_exec_time = opt_exec_time2;
-    this->opt_point     = opt_point2;
-
     /* Create an extreme point */
     for (int i = 0; i < NPH; i++) {
         phase_t p(this->bench[i],ULIM);
         this->ext_point.push_back(p);
     }
+#ifndef SHUTDOWN_ORACLE
+    double opt_pkp_power2 = HUGE_VAL;
+    double opt_exec_time2 = 0.0;
+    alloc2_t opt_point2;
+    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
+    this->opt_point     = opt_point2;
+#else
+    /* Do not compute the Oracle*/
+    this->opt_point     = ext_point;
+#endif
 
     /* Use a DGGD Algorithm */
     this->ptss_pkmin();
 
     /* Display the Oracle */
+#ifndef SHUTDOWN_ORACLE
     cout << "Optimal Point : " << this->opt_point << "\n";
+#else 
+    cout << "Worst Point : " << this->opt_point << "\n";
+#endif
     cout << "Exec Time:" << compute_execution_time(this->opt_point) << ",Power:" << compute_pkpower(this->opt_point) << "\n";
     // cout << "CVX-Cont="<<this->cvx_pkp_min<<",CVX-Disc="<<compute_pkpower(this->cvx_point)<<endl;
 }
@@ -523,7 +556,12 @@ void ptss_DSE_hrt::display() {
     if (this->opt_point.size() < NPH) {
         throw invalid_argument("Did not create Oracle Opt Point");
     }
-    cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD}," << compute_pkpower(this->opt_point) << ","\
+#ifndef SHUTDOWN_ORACLE
+    cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD},";
+#else
+    cout << "ufhew4r4{Worst|CVX-Cont|CVX-Disc|DGGD},";
+#endif
+    cout << compute_pkpower(this->opt_point) << ","\
          << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) << endl;
 
 }

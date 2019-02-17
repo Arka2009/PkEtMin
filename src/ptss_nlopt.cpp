@@ -13,7 +13,6 @@ double ptss_func(const std::vector<double> &x, \
                  std::vector<double> &grad, \
                  void *my_func_data)
 {
-    // static int count = 0;
     if (!grad.empty()) {
         for (unsigned int i = 0; i < x.size()-1; i++) {
             grad[i] = 0.0;
@@ -22,7 +21,11 @@ double ptss_func(const std::vector<double> &x, \
     }
     double f = x[x.size()-1];
 
-    // cout <<"Obj_" << count++ << "("<<x<<") = "<< f << endl;
+    // static int count = 0;
+    // cout <<"Obj_" << count++ << "(";
+    // for (unsigned int i = 0; i < x.size(); i++)
+    //     cout<<x[i]<<",";
+    // cout<<") = "<< f << endl;
     return f;
 }
 
