@@ -151,6 +151,11 @@ int inv_estimate_power(const double y, const int bench) {
     double b = BP[bench];
     double x;
     x = (1/a)*(y-b);
+
+    /* The number of cores must not be smaller than LLIM */
+    if (x < LLIM[bench])
+        x = LLIM[bench];
+
     return x;
 }
 
@@ -286,6 +291,7 @@ void construct_alloc(all_alloc2_t &vvi, \
         }
         /* Oracle Evaluation */
         et = compute_execution_time(vi2);
+        // cout << "construct alloc et " << et << "\n";
         if (et <= deadline && et >= 0) {
             pkp = compute_pkpower(vi2);
             if (pkp <= opt_pkp_power) {
@@ -293,7 +299,19 @@ void construct_alloc(all_alloc2_t &vvi, \
                 opt_pkp_power = pkp;
                 opt_exec_time = et;
             }
+            // cout << "construct alloc pkp" << pkp << "\n";
         }
+
+        /* Add an extreme point if no feasible point is found */
+        // if (opt_point.size() < NPH) {
+        //     cout << "NO FEASIBLE POINT FOUND" << endl;
+        //     for(unsigned int i = 0; i < NPH; i++) {
+        //         phase_t phinfo;
+        //         phinfo.alloc = ULIM;
+        //         phinfo.bench_id = bench[i];
+        //         opt_point.push_back(phinfo);
+        //     }
+        // }
         // if (et >= 0) {
         //     vvi.insert(vi2);
         // }
@@ -370,15 +388,15 @@ double ptss_DSE_hrt::compute_cvx() {
         }
 
         /* Display the continuous domain point */
-        cout <<"CVX-Opt continuous point x = <";
-        for (int i = 0; i < NPH+1; i++)
-            cout <<x[i]<<",";
-        cout<<">"<<endl;
-        cout << "CVX-Opt minf = " << minf << endl;
-        cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
-        cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
-        cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
-        //
+        // cout <<"CVX-Opt continuous point x = <";
+        // for (int i = 0; i < NPH+1; i++)
+        //     cout <<x[i]<<",";
+        // cout<<">"<<endl;
+        // cout << "CVX-Opt minf = " << minf << endl;
+        // cout << "CVX-Opt Relaxed Point = "<<this->cvx_point<<"\n";
+        // cout << "CVX-Opt Power Consumption = "<<compute_pkpower(this->cvx_point)<<"\n";
+        // cout << "CVX-Opt Execution Time = "<<compute_execution_time(this->cvx_point)<<"\n\n";
+        
         return minf;
     }
     catch(std::exception &e) {
@@ -392,6 +410,7 @@ double ptss_DSE_hrt::bench_create() {
     int a;
     for (int i = 0; i < NPH; i++) {
         a = gen_bench_id();
+        // cout << "Bench id Generated "<<a<<endl;
         this->bench.push_back(a);
         a_et.push_back(AET[a]);
         b_et.push_back(BET[a]);
@@ -436,6 +455,7 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     double opt_exec_time2 = 0.0;
     alloc2_t opt_point2;
     construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
+    cout << opt_point2 << endl;
     this->opt_point     = opt_point2;
 #else
     /* Do not compute the Oracle*/
@@ -446,13 +466,13 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
     this->ptss_pkmin();
 
     /* Display the Oracle */
-#ifndef SHUTDOWN_ORACLE
-    cout << "Optimal Point : " << this->opt_point << "\n";
-#else 
-    cout << "Worst Point : " << this->opt_point << "\n";
-#endif
-    cout << "Exec Time:" << compute_execution_time(this->opt_point) << ",Power:" << compute_pkpower(this->opt_point) << "\n";
-    // cout << "CVX-Cont="<<this->cvx_pkp_min<<",CVX-Disc="<<compute_pkpower(this->cvx_point)<<endl;
+// #ifndef SHUTDOWN_ORACLE
+//     cout << "Optimal Point : " << this->opt_point << "\n";
+// #else 
+//     cout << "Worst Point : " << this->opt_point << "\n";
+// #endif
+//     cout << "Exec Time:" << compute_execution_time(this->opt_point) << ",Power:" << compute_pkpower(this->opt_point) << "\n";
+
 }
 
 // double ptss_DSE_hrt::get_opt_pkp_power() {
@@ -554,7 +574,9 @@ void ptss_DSE_hrt::display() {
         throw invalid_argument("Did not create DGGD Opt Point");
     }
     if (this->opt_point.size() < NPH) {
-        throw invalid_argument("Did not create Oracle Opt Point");
+        // cout << this->opt_point << endl;
+        cout << "NO FEASIBLE POINT FOUND" << endl;
+        // throw invalid_argument("Did not create Oracle Opt Point");
     }
 #ifndef SHUTDOWN_ORACLE
     cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD},";
@@ -562,6 +584,8 @@ void ptss_DSE_hrt::display() {
     cout << "ufhew4r4{Worst|CVX-Cont|CVX-Disc|DGGD},";
 #endif
     cout << compute_pkpower(this->opt_point) << ","\
-         << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) << endl;
+         << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) <<endl;
+    // cout << "Optimal Point" << this->opt_point<< "et" << compute_execution_time(this->opt_point)<<endl;
+    // cout << "DGGD Point" << this->dggd_point<<"et" << compute_execution_time(this->dggd_point)<<"\n\n\n";
 
 }

@@ -56,6 +56,15 @@ double ptss_DSE_hrt::ptss_pkmin() {
     bool stop = false; /* Stopping criteria */
     unsigned int iter = 0;
 
+    /* Test for negative execution time */
+    // if(compute_execution_time(tmp) < 0) {
+    //     cout <<"\n\n\n"<< "DGGD Init Value Illegal" <<tmp<<"et" << compute_execution_time(tmp)<<"\n\n\n";
+    //     for (auto it = phs.begin(); it != phs.end(); it++) {
+    //         cout << *it << endl;
+    //     }
+    //     throw invalid_argument("--------------------Illegal Value of tmp*****");
+    // }
+
     //  cout << "iter-" << iter << ",point:" << tmp << ",power:" << compute_pkpower(tmp) << endl;
      do { /* Check after balancing */
         // cout << "iter-" << iter << ",point:" << tmp << ",power:" << compute_pkpower(tmp) << endl;
@@ -63,18 +72,29 @@ double ptss_DSE_hrt::ptss_pkmin() {
         opt_dggd = tmp;
         phs = compute_bottleneck(tmp);
 
+         /* Test for negative execution time */
+        // cout << "DGGD-Pre@"<<iter<<":"<<tmp<<",et:" << compute_execution_time(tmp)<<"\n";
+
         // cout << "DGGD:PHS SIZE : " <<phs.size()<<endl;
         for (auto it = phs.begin(); it != phs.end(); it++) {
             ph = *it;
             // cout << "DGGD"<<iter<<" : Peak Phase:"<<ph<<",power:"<<compute_pkpower(tmp)<<endl;
             /* Decrement the number of cores (if possible) (Guaranteed to reduce power if successful) */
             if (tmp[ph].alloc > LLIM[this->bench[ph]]) {
-                // cout << "DGGD : Peak Phase Alloc Reduced " << endl;
+                // cout << "DGGD@"<<iter<<",ph:"<<ph<<",allocated:"<<tmp[ph].alloc<<",LLIM:"<<LLIM[this->bench[ph]]<< endl;
                 tmp[ph].alloc--;
+            } else if (tmp[ph].alloc < LLIM[this->bench[ph]]) {
+                cout << "\n\n\nph:"<<ph<<" is already below the lower limit\n\n\n"<<endl;
+                throw invalid_argument("already below the lower limit");
             }
             // cout << "DGGD"<<iter<<" : (New) Peak Phase:"<<ph<<",power:"<<compute_pkpower(tmp)<<endl;
         }
         
+        /* Test for negative execution time */
+        if(compute_execution_time(tmp) < 0) {
+            cout << "DGGD@"<<iter<<":"<<tmp<<",et:" << compute_execution_time(tmp)<<"\n";
+            throw invalid_argument("Negative Value of ET not allowed");
+        }
         
         // cout << "iter-" << iter << ",point:" << tmp << ",power:" << compute_pkpower(tmp) << "\n\n";
         stop = (compute_execution_time(tmp) > this->deadline) || (eval_rel(tmp,opt_dggd) < 1e-3);
@@ -82,13 +102,17 @@ double ptss_DSE_hrt::ptss_pkmin() {
         
         /* Balance the allocation (Will not change the power consumption) */
         balance_out(tmp);
+        if(compute_execution_time(tmp) < 0) {
+            cout << "DGGD-Balancing-Out@"<<iter<<":"<<tmp<<",et:" << compute_execution_time(tmp)<<"\n";
+            throw invalid_argument("Negative Value of ET not allowed");
+        }
         stop = (compute_execution_time(tmp) > this->deadline) || (eval_rel(tmp,opt_dggd) < 1e-3);
     } while (!stop);
 
     gettimeofday(&t2,NULL);
     long long diff = (t2.tv_sec-t1.tv_sec)*1000000 + (t2.tv_usec-t1.tv_usec);
-    cout << "DGGD Number of Iterations : "<<iter<<", Elapsed Time : "<<diff<<endl;
-    cout << "DGGD Point : "<<opt_dggd<<"\n\n";
+    cout << "dbcks{iter|elapsed time},"<<iter<<","<<diff<<endl;
+    // cout << "DGGD Point : "<<opt_dggd<<"\n\n";
     this->dggd_point = opt_dggd;
     return compute_pkpower(opt_dggd);
 }
