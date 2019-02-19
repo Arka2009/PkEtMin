@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     int deadline = atoi(argv[1]);
     struct timeval t1, t2;
     gettimeofday(&t1,NULL);
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 100; i++) {
         ptss_DSE_hrt obj(deadline);
         obj.display();
     }

@@ -44,3 +44,6 @@ Datasets/
 *.swp
 *.svo
 *.svp
+
+# Dump Datasets
+TCADExp/dump*/

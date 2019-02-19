@@ -152,10 +152,11 @@ int inv_estimate_power(const double y, const int bench) {
     double x;
     x = (1/a)*(y-b);
 
-    /* The number of cores must not be smaller than LLIM */
+    /* The number of cores must be within [LLIM,ULIM] */
     if (x < LLIM[bench])
         x = LLIM[bench];
-
+    if (x > ULIM)
+        x = ULIM;
     return x;
 }
 
@@ -278,17 +279,23 @@ void construct_alloc(all_alloc2_t &vvi, \
         //cout << "ph : " << ph << ", invoc : " << cnt << endl;
         dec = cnt++;
 
+        
         /* Resolve cnt into M-radix number */
         for (j = 0; j < NPH; j++) {
             //cout << dec%r + 1 << ",";
             phase_t phinfo;
             phinfo.alloc = dec%r + 1;
             phinfo.bench_id = bench[j];
+
+            // if (cnt == 800083) {
+            //     cout << "phinfo:"<<phinfo<<endl;
+            // }
             // cout << "Bench Created : " << phinfo.bench_id << endl;
 
             vi2.push_back(phinfo);
             dec = dec/r;
         }
+        // cout << "cnt="<<cnt<<","<<vi2<<endl;
         /* Oracle Evaluation */
         et = compute_execution_time(vi2);
         // cout << "construct alloc et " << et << "\n";
@@ -312,9 +319,9 @@ void construct_alloc(all_alloc2_t &vvi, \
         //         opt_point.push_back(phinfo);
         //     }
         // }
-        // if (et >= 0) {
-        //     vvi.insert(vi2);
-        // }
+        if (et >= 0) {
+            vvi.insert(vi2);
+        }
         //cout << "}\n";
         return;
     }
@@ -326,7 +333,7 @@ void construct_alloc(all_alloc2_t &vvi, \
 unsigned int gen_bench_id() {
     unsigned int a = BENCH_PRSC_BLACKSCHOLES + (rand() % 6);
     return a;
-} 
+}
 
 
 double ptss_DSE_hrt::compute_cvx() {
@@ -408,8 +415,10 @@ double ptss_DSE_hrt::compute_cvx() {
 double ptss_DSE_hrt::bench_create() {
     /* Create a mix of benchmarks */
     int a;
+    // unsigned int benchid[] = {10,9,10,10,7};
     for (int i = 0; i < NPH; i++) {
         a = gen_bench_id();
+        // a = benchid[i];
         // cout << "Bench id Generated "<<a<<endl;
         this->bench.push_back(a);
         a_et.push_back(AET[a]);
@@ -428,7 +437,7 @@ bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
     if (ret) {
         cout << "point:"<<a<<",pkp:"<<compute_pkpower(a)<<",et:"<<compute_execution_time(a)<<endl;
     } else {
-        cout << "point not found" << endl;
+        cout << "point not found : " << a << endl;
     }
     return ret;
 }
@@ -585,7 +594,19 @@ void ptss_DSE_hrt::display() {
 #endif
     cout << compute_pkpower(this->opt_point) << ","\
          << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) <<endl;
-    // cout << "Optimal Point" << this->opt_point<< "et" << compute_execution_time(this->opt_point)<<endl;
-    // cout << "DGGD Point" << this->dggd_point<<"et" << compute_execution_time(this->dggd_point)<<"\n\n\n";
+    cout << "Optimal Point:" << this->opt_point<< "et" << compute_execution_time(this->opt_point)<<endl;
+    cout << "DGGD Point:" << this->dggd_point<<"et" << compute_execution_time(this->dggd_point)<<"\n\n\n";
 
+    /* Check for the availability of point in search space */
+    // alloc2_t tmp;
+    // for(int i = 0; i < NPH; i++) {
+    //     phase_t phinfo;
+    //     unsigned int benchid[] = {10,9,10,10,7};
+    //     unsigned int alloca[]  = {12,6,12,12,19};
+    //     // unsigned int alloca[]  = {13,6,13,13,16};
+    //     phinfo.bench_id = benchid[i];
+    //     phinfo.alloc    = alloca[i];
+    //     tmp.push_back(phinfo);
+    // }
+    // this->contains_point(tmp);
 }
