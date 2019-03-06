@@ -33,7 +33,7 @@ int main() {
     opt.add_inequality_constraint(ptss_constraint_power, &param[2], 1e-8);
 
     /* Set the objective function */
-    opt.set_min_objective(ptss_func, NULL);
+    opt.set_min_objective(ptss_func_pkp, NULL);
 
     // opt.add_inequality_constraint(ptss_constraint_exectime, &data[1], 1e-8);
     opt.set_xtol_rel(1e-4);

@@ -17,14 +17,15 @@ using namespace std;
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        cout << "Enter The deadline" << endl;
+        cout << "Enter The deadline, Peak Power Cap" << endl;
         exit(EXIT_FAILURE);
     }
-    int deadline = atoi(argv[1]);
+    double deadline = atof(argv[1]);
+    double pkp_cap  = atof(argv[2]);
     struct timeval t1, t2;
     gettimeofday(&t1,NULL);
     for (int i = 0; i < 100; i++) {
-        ptss_DSE_hrt obj(deadline);
+        ptss_DSE_hrt obj(deadline,pkp_cap);
         obj.display();
     }
     gettimeofday(&t2,NULL);

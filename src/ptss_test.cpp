@@ -2,7 +2,7 @@
 #include <vector>
 #include <set>
 #include <iterator>
-#include <math.h>
+#include <cmath>
 #include <chrono>
 #include <exception>
 #include <queue>
@@ -42,8 +42,15 @@ void test_compute_execution_time() {
     cout << "Total Time : " << s << endl;
 }
 
+void test_power() {
+    ptss_int_t x = (ptss_int_t)pow(16.0,NPH);
+    cout << x << endl;
+    // construct_alloc_2();
+}
+
 int main() {
     //srand(time(NULL));
     // test_gen_bench_id();
-    test_compute_execution_time();
+    // test_compute_execution_time();
+    test_power();
 }

@@ -13,30 +13,29 @@
 #include "ptss_pkmin.hpp"
 
 using namespace std;
+#define NSAMPLES 100
 
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        cout << "Enter The deadline" << endl;
+        cout << "Enter The deadline, Peak Power Cap" << endl;
         exit(EXIT_FAILURE);
     }
-    int deadline = atoi(argv[1]);
-    struct timeval t1, t2;
-    gettimeofday(&t1,NULL);
-    ptss_DSE_hrt obj(deadline);
-    // cout << "Search Space Created "<<endl;
+    double deadline   = atof(argv[1]);
+    vector<double> pkp_cap  = {8.5,9.22,9.94,10.66,11.38,12.11,12.83,13.55,14.27,15.0};
 
-    // alloc2_t testp = {phase_t(6,8),phase_t(9,10),phase_t(8,10),phase_t(6,8),phase_t(10,16)};
-    // obj.contains_point(testp);
-
-    // double pkp_opt = obj.get_opt_pkp_power();
-    // alloc2_t dggd;
-    // double pkp_opt2 = ptss_pkmin(obj.get_init_point(),deadline,&dggd);
-    obj.display();
-    gettimeofday(&t2,NULL);
-    double elapsed  = t2.tv_sec-t1.tv_sec;
-
-    /* Percent Difference */
-    // double diff = (pkp_opt2-pkp_opt)*100/pkp_opt;
-    // cout << "deadline:" << deadline << ",diff:"<<diff<<",elapsed time:"<<elapsed <<"\n\n";
+    // struct timeval t1, t2;
+    // gettimeofday(&t1,NULL);
+    int j = NSAMPLES,i = 0;
+    // for (i = 0; i < pkp_cap.size();i++) {
+        j = NSAMPLES;
+        while (j > 0) {
+            cout << "("<<i<<","<<j<<") Iteration"<<endl;
+            ptss_DSE_hrt obj(deadline,pkp_cap[i]);
+            obj.display();
+            j--;
+        }
+    // }
+    // gettimeofday(&t2,NULL);
+    // double elapsed  = t2.tv_sec-t1.tv_sec;
 }

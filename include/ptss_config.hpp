@@ -5,9 +5,10 @@
 #include "ptss_config_nph.hpp"
 
 #define M       16
-// #define LLIM    3
+// #define         DEBUG1
 #define ULIM    M
 extern unsigned int LLIM[];
+typedef unsigned long long int ptss_int_t;
 
 /* Benchmarks (ID) */
 #define BENCH_LACE_DFS                        0

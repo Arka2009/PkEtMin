@@ -58,3 +58,73 @@
     //         exit(EXIT_FAILURE);
     //     }
     // }
+
+// void construct_alloc(all_alloc2_t &vvi, \
+//                      const vector<int> &bench, \
+//                      double deadline, \
+//                      int ph,\
+//                      alloc2_t &opt_point,\
+//                      double &opt_pkp_power,\
+//                      double &opt_exec_time) {
+//     alloc2_t vi2;
+//     static long unsigned int cnt = 0;
+//     double et, pkp;
+//     long unsigned int r   = M;
+//     long unsigned int dec;
+//     long unsigned int j   = 0;
+
+//     if (ph == NPH) {
+//         // cout << "deadline (calloc) : " << deadline << endl;
+//         //cout << "ph : " << ph << ", invoc : " << cnt << endl;
+//         dec = cnt++;
+
+        
+//         /* Resolve cnt into M-radix number */
+//         for (j = 0; j < NPH; j++) {
+//             //cout << dec%r + 1 << ",";
+//             phase_t phinfo;
+//             phinfo.alloc = dec%r + 1;
+//             phinfo.bench_id = bench[j];
+
+//             // if (cnt == 800083) {
+//             //     cout << "phinfo:"<<phinfo<<endl;
+//             // }
+//             // cout << "Bench Created : " << phinfo.bench_id << endl;
+
+//             vi2.push_back(phinfo);
+//             dec = dec/r;
+//         }
+//         // cout << "cnt="<<cnt<<","<<vi2<<endl;
+//         /* Oracle Evaluation */
+//         et = compute_execution_time(vi2);
+//         // cout << "construct alloc et " << et << "\n";
+//         if (et <= deadline && et >= 0) {
+//             pkp = compute_pkpower(vi2);
+//             if (pkp <= opt_pkp_power) {
+//                 opt_point     = vi2;
+//                 opt_pkp_power = pkp;
+//                 opt_exec_time = et;
+//             }
+//             // cout << "construct alloc pkp" << pkp << "\n";
+//         }
+
+//         /* Add an extreme point if no feasible point is found */
+//         // if (opt_point.size() < NPH) {
+//         //     cout << "NO FEASIBLE POINT FOUND" << endl;
+//         //     for(unsigned int i = 0; i < NPH; i++) {
+//         //         phase_t phinfo;
+//         //         phinfo.alloc = ULIM;
+//         //         phinfo.bench_id = bench[i];
+//         //         opt_point.push_back(phinfo);
+//         //     }
+//         // }
+//         if (et >= 0) {
+//             vvi.insert(vi2);
+//         }
+//         //cout << "}\n";
+//         return;
+//     }
+//     for (int m = 0; m < ULIM; m++) {
+//         construct_alloc(vvi,bench,deadline,ph+1,opt_point,opt_pkp_power,opt_exec_time);
+//     }
+// }

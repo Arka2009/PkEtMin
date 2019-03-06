@@ -63,7 +63,9 @@ int inv_estimate_power(const double y, const int bench);
 double compute_estimated_util(const alloc_t &x);
 double compute_pkpower(const alloc2_t &x);
 set<unsigned int> compute_bottleneck(const alloc2_t &x);
+set<unsigned int> compute_maxgrad(const alloc2_t &x);
 void balance_out(alloc2_t &x);
+void construct_alloc_2();
 
 /* Utility functions */
 void construct_alloc(all_alloc2_t &vvi, \
@@ -126,12 +128,16 @@ class ptss_DSE_hrt {
          */
         all_alloc2_t search_space;
         double deadline;
+        double pkp_cap;      /* Maximum peak power */
 
         /* Allocation Points */
-        alloc2_t opt_point;  /* Oracle Computed */
+        alloc2_t opt_point;  /* Oracle Computed pkp min point */
         alloc2_t ext_point;  /* Point of Highest Power Consumption, also serves as an init_point in some algorithms */
+        alloc2_t ext_point2; /* Minimum allocation point*/
         alloc2_t cvx_point;  /* Optimal Point found using continuous relaxation and then dicretization */
         alloc2_t dggd_point; /* Point Found using discrete greedy gradient descent */
+        alloc2_t opt_point2;  /* Oracle Computed et min point */
+        alloc2_t dggd_point2; /* Dual of dggd_point */
 
         /* Corresponding Objective Function (and constraint) Value */
         // double opt_pkp_power;
@@ -149,8 +155,9 @@ class ptss_DSE_hrt {
         double bench_create();
 
     public :
-        ptss_DSE_hrt(double);
-        ptss_DSE_hrt() : ptss_DSE_hrt(2000) {};
+        ptss_DSE_hrt(double,double);
+        ptss_DSE_hrt() : ptss_DSE_hrt(2000,15) {};
+        void construct_alloc2();
         
 
         // Evaluate all points in the Design Space, and return the optimal value
@@ -170,6 +177,7 @@ class ptss_DSE_hrt {
         /* The DGGD algorithm (Discrete Greedy Gradient Descent also referred to as
         pkmin in the paper) */
         double ptss_pkmin();
+        double ptss_etmin(); /* Dual of previous problem */
 
 };
 

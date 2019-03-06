@@ -34,6 +34,24 @@ double eval_rel(const alloc2_t &pt1, const alloc2_t &pt2) {
     return 0.0;
 }
 
+/* Evaluate the relative difference of two objective functions */
+double eval_rel2(const alloc2_t &pt1, const alloc2_t &pt2) {
+    double f1 = compute_execution_time(pt1);
+    double f2 = compute_execution_time(pt2);
+
+    if (f1 == 0 && f2 == 0)
+        return 0.0;
+    else if (f1 != 0) {
+        double rel = (abs(f1-f2))/abs(f1);
+        return rel;
+    }
+    else {
+        double rel = (abs(f1-f2))/abs(f2);
+        return rel;
+    }
+    return 0.0;
+}
+
 /* Nowhere else to go (lowest allocation possible) */
 bool hit_the_wall(const alloc2_t &pt1) {
     for (unsigned int i = 0; i < pt1.size(); i++) {
@@ -111,8 +129,75 @@ double ptss_DSE_hrt::ptss_pkmin() {
 
     gettimeofday(&t2,NULL);
     long long diff = (t2.tv_sec-t1.tv_sec)*1000000 + (t2.tv_usec-t1.tv_usec);
-    cout << "dbcks{iter|elapsed time},"<<iter<<","<<diff<<endl;
+    // cout << "dbcks{iter|elapsed time},"<<iter<<","<<diff<<endl;
     // cout << "DGGD Point : "<<opt_dggd<<"\n\n";
     this->dggd_point = opt_dggd;
     return compute_pkpower(opt_dggd);
+}
+
+double ptss_DSE_hrt::ptss_etmin() {
+    alloc2_t tmp = this->ext_point2;
+    alloc2_t opt_dggd;
+    set<unsigned int> phs;
+    unsigned int ph;
+    bool stop = false; /* Stopping criteria */
+    unsigned int iter = 0;
+
+    // cout << "iter-" << iter << ",point:" << tmp \
+    //      << ",power:" << compute_pkpower(tmp) \
+    //      << ",et:"<<compute_execution_time(tmp)<<endl;
+
+    do { /* Check after balancing */
+        iter++;
+        opt_dggd = tmp;
+    
+        /* Increment the phases that results in maximum increase in et */
+        phs = compute_maxgrad(tmp);
+        for (auto it = phs.begin(); it != phs.end(); it++) {
+            ph = *it;
+            // cout << "DGGD"<<iter<<" : Peak Phase:"<<ph<<",power:"<<compute_pkpower(tmp)<<endl;
+            /* Increment the number of cores (if possible) (Guaranteed to reduce power if successful) */
+            if (tmp[ph].alloc < ULIM) {
+                // cout << "DGGD@"<<iter<<",ph:"<<ph<<",allocated:"<<tmp[ph].alloc<<",LLIM:"<<LLIM[this->bench[ph]]<< endl;
+                tmp[ph].alloc++;
+            } else if (tmp[ph].alloc > ULIM) {
+                cout << "\n\n\nph:"<<ph<<" is already below the lower limit\n\n\n"<<endl;
+                throw invalid_argument("already below the lower limit");
+            }
+            // cout << "DGGD"<<iter<<" : (New) Peak Phase:"<<ph<<",power:"<<compute_pkpower(tmp)<<endl;
+        }
+
+        /* Test for negative execution time */
+        if(compute_pkpower(tmp) < 0) {
+            cout << "DGGD2@"<<iter<<":"<<tmp<<",pkp:" << compute_execution_time(tmp)<<"\n";
+            throw invalid_argument("Negative Value of pkp not allowed");
+        }
+        // cout << "iter-" << iter << ",point:" << tmp \
+        //  << ",power:" << compute_pkpower(tmp) \
+        //  << ",et:"<<compute_execution_time(tmp)<<endl;
+
+        stop = (compute_pkpower(tmp) > this->pkp_cap) || (eval_rel2(tmp,opt_dggd) < 1e-3);
+        if (!stop) continue;
+
+        // /* Balance the allocation (Will not change the power consumption) */
+        // balance_out(tmp);
+
+        // if(compute_pkpower(tmp) < 0) {
+        //     cout << "DGGD2-Balancing-Out@"<<iter<<":"<<tmp<<",pkp:" << compute_execution_time(tmp)<<"\n";
+        //     throw invalid_argument("Negative Value of pkp not allowed");
+        // }
+        // stop = (compute_pkpower(tmp) > this->pkp_cap) || (eval_rel2(tmp,opt_dggd) < 1e-3);
+
+        // cout << "(post balancing) iter-" << iter << ",point:" << tmp \
+        //  << ",power:" << compute_pkpower(tmp) \
+        //  << ",et:"<<compute_execution_time(tmp)<<endl;
+
+    } while (!stop);
+    /* Balance Out Optimal Allocation */
+    balance_out(opt_dggd);
+    // cout << "(2nd post balancing) iter-" << iter << ",point:" << opt_dggd \
+    //      << ",power:" << compute_pkpower(opt_dggd) \
+    //      << ",et:"<<compute_execution_time(opt_dggd)<<endl;
+    this->dggd_point2 = opt_dggd;
+    return compute_execution_time(opt_dggd);
 }

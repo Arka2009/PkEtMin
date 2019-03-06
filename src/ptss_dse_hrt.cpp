@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
+#include <ecotools/roi_hooks.h>
 #include <nlopt.hpp>
 #include <algorithm>
 #include "ptss_dse.hpp"
@@ -199,15 +200,6 @@ set<unsigned int> compute_bottleneck(const alloc2_t &x) {
     unsigned int least_idx = distance(etp, max_element(etp, etp + N));
     double maxp = etp[least_idx];
 
-    // unsigned int idx = 0, i;
-    // for(i = 0; i < x.size(); i++) {
-    //     if (estimate_power(x[idx].alloc,x[idx].bench_id) <  estimate_power(x[i].alloc,x[i].bench_id)) {
-    //         idx  = i;
-    //         minp = estimate_power(x[idx].alloc,x[idx].bench_id);
-    //         cout << "minp** : "<<minp<<endl;
-    //     }
-    // }
-
     /* Find all indices with maximum power consumption */
     for(unsigned int i = 0; i < x.size();i++) {
         // cout << "maxp : "<<maxp<<",power estimate : "<<estimate_power(x[i].alloc,x[i].bench_id)<<endl;
@@ -215,6 +207,40 @@ set<unsigned int> compute_bottleneck(const alloc2_t &x) {
             phs.insert(i);
         }
     }
+    return phs;
+}
+
+/* Compute the nbd allocation with maximum decrease in et */
+set<unsigned int> compute_maxgrad(const alloc2_t &x) {
+    set<unsigned int> phs;
+    double etp[NPH];
+
+    /* Estimate the execution time of all phases */
+    for (unsigned int i = 0; i < x.size();i++) {
+        alloc2_t tmp = x;
+        tmp[i].alloc += 1;
+        etp[i] = compute_execution_time(x) - compute_execution_time(tmp);
+
+        // if (etp[i]) {
+        //     throw invalid_argument("Negative diff in et unexpected\n");
+        // }
+        // cout << "ph("<<i<<")-diff:"<<etp[i]<<endl;
+    }
+    const int N = sizeof(etp) / sizeof(double);
+    unsigned int least_idx = distance(etp, max_element(etp, etp + N));
+    double maxp = etp[least_idx];
+
+    /* Find all indices with max decline in execution time */
+    for(unsigned int i = 0; i < x.size();i++) {
+        // cout << "maxp : "<<maxp<<",power estimate : "<<estimate_power(x[i].alloc,x[i].bench_id)<<endl;
+        if (maxp == etp[i]) {
+            phs.insert(i);
+        }
+    }
+    // int i = 0;
+    // for (set<unsigned int>::iterator it = phs.begin(); it != phs.end(); it++) {
+    //     cout << "phs("<<i++<<")-diff:"<<*it<<endl;
+    // }
     return phs;
 }
 
@@ -260,74 +286,63 @@ std::ostream& operator<<(std::ostream& os, const all_alloc2_t& vvi) {
   return os;
 }
 
-void construct_alloc(all_alloc2_t &vvi, \
-                     const vector<int> &bench, \
-                     double deadline, \
-                     int ph,\
-                     alloc2_t &opt_point,\
-                     double &opt_pkp_power,\
-                     double &opt_exec_time) {
+
+/* An non-recursive version of the above */
+static inline long long calculate_time_diff_spec(struct timespec t2, struct timespec t1) {
+    long long elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000000LL + t2.tv_nsec - t1.tv_nsec;
+    return elapsedTime;                                                         
+} 
+
+void ptss_DSE_hrt::construct_alloc2() {
     alloc2_t vi2;
-    static long unsigned int cnt = 0;
     double et, pkp;
-    long unsigned int r   = M;
-    long unsigned int dec;
-    long unsigned int j   = 0;
+    ptss_int_t r = M, j = 0, dec, cnt;
+    ptss_int_t TOT = (ptss_int_t)pow(M,NPH);
 
-    if (ph == NPH) {
-        // cout << "deadline (calloc) : " << deadline << endl;
-        //cout << "ph : " << ph << ", invoc : " << cnt << endl;
-        dec = cnt++;
+    /* Temporary "Global Varirbles "*/
+    double deadline = this->deadline;
+    // unsigned int bench[] = {10,9,10,10,7};
+    double opt_pkp_power = HUGE_VALF;
+    double opt_exec_time = HUGE_VALF;
+    //struct timespec t1, t2;
 
-        
-        /* Resolve cnt into M-radix number */
+    for (cnt = 0; cnt < TOT; cnt++) {
+        //clock_gettime(CLOCK_REALTIME,&t1);
+        dec = cnt;
+
+        /* Create the point */
         for (j = 0; j < NPH; j++) {
-            //cout << dec%r + 1 << ",";
             phase_t phinfo;
             phinfo.alloc = dec%r + 1;
-            phinfo.bench_id = bench[j];
-
-            // if (cnt == 800083) {
-            //     cout << "phinfo:"<<phinfo<<endl;
-            // }
-            // cout << "Bench Created : " << phinfo.bench_id << endl;
-
+            phinfo.bench_id = this->bench[j];
             vi2.push_back(phinfo);
             dec = dec/r;
         }
-        // cout << "cnt="<<cnt<<","<<vi2<<endl;
-        /* Oracle Evaluation */
+        
+        /* Find optimal pkp point */
         et = compute_execution_time(vi2);
-        // cout << "construct alloc et " << et << "\n";
         if (et <= deadline && et >= 0) {
             pkp = compute_pkpower(vi2);
             if (pkp <= opt_pkp_power) {
-                opt_point     = vi2;
-                opt_pkp_power = pkp;
-                opt_exec_time = et;
+                this->opt_point     = vi2;
+                opt_pkp_power       = pkp;
             }
-            // cout << "construct alloc pkp" << pkp << "\n";
         }
+        // vi2.clear();
 
-        /* Add an extreme point if no feasible point is found */
-        // if (opt_point.size() < NPH) {
-        //     cout << "NO FEASIBLE POINT FOUND" << endl;
-        //     for(unsigned int i = 0; i < NPH; i++) {
-        //         phase_t phinfo;
-        //         phinfo.alloc = ULIM;
-        //         phinfo.bench_id = bench[i];
-        //         opt_point.push_back(phinfo);
-        //     }
-        // }
-        if (et >= 0) {
-            vvi.insert(vi2);
+        /* Find optimal et point */
+        pkp = compute_pkpower(vi2);
+        if (pkp <= this->pkp_cap && pkp >= 0) {
+            et = compute_execution_time(vi2);
+            if (et >= 0 && et <= opt_exec_time) {
+                this->opt_point2    = vi2;
+                opt_exec_time       = et;
+            }
         }
-        //cout << "}\n";
-        return;
+        vi2.clear();
     }
-    for (int m = 0; m < ULIM; m++) {
-        construct_alloc(vvi,bench,deadline,ph+1,opt_point,opt_pkp_power,opt_exec_time);
-    }
+
+    // cout << "Optimal Point : "<<opt_point<<endl;
 }
 
 unsigned int gen_bench_id() {
@@ -365,7 +380,7 @@ double ptss_DSE_hrt::compute_cvx() {
     }
 
     /* Set the objective function */
-    opt.set_min_objective(ptss_func, NULL);
+    opt.set_min_objective(ptss_func_pkp, NULL);
 
     /* Stopping Criteria and Initial Point*/
     opt.set_ftol_rel(1e-4);
@@ -442,30 +457,21 @@ bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
     return ret;
 }
 
-// Create All points
-// ptss_DSE_hrt::ptss_DSE_hrt() : {}
 
-ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
-    // /* Create a mix of benchmarks */
-    // int a;
-    // for (int i = 0; i < NPH; i++) {
-    //     a = gen_bench_id();
-    //     this->bench.push_back(a);
-    // }
+ptss_DSE_hrt::ptss_DSE_hrt(double deadline,double pkp_cap) {
     this->deadline = deadline;
+    this->pkp_cap  = pkp_cap;
     this->bench_create();
     /* Create an extreme point */
     for (int i = 0; i < NPH; i++) {
         phase_t p(this->bench[i],ULIM);
         this->ext_point.push_back(p);
+
+        phase_t p2(this->bench[i],LLIM[this->bench[i]]);
+        this->ext_point2.push_back(p2);
     }
 #ifndef SHUTDOWN_ORACLE
-    double opt_pkp_power2 = HUGE_VAL;
-    double opt_exec_time2 = 0.0;
-    alloc2_t opt_point2;
-    construct_alloc(this->search_space,this->bench,this->deadline,0,opt_point2,opt_pkp_power2,opt_exec_time2);
-    cout << opt_point2 << endl;
-    this->opt_point     = opt_point2;
+    this->construct_alloc2();
 #else
     /* Do not compute the Oracle*/
     this->opt_point     = ext_point;
@@ -473,53 +479,9 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline) {
 
     /* Use a DGGD Algorithm */
     this->ptss_pkmin();
-
-    /* Display the Oracle */
-// #ifndef SHUTDOWN_ORACLE
-//     cout << "Optimal Point : " << this->opt_point << "\n";
-// #else 
-//     cout << "Worst Point : " << this->opt_point << "\n";
-// #endif
-//     cout << "Exec Time:" << compute_execution_time(this->opt_point) << ",Power:" << compute_pkpower(this->opt_point) << "\n";
-
+    this->ptss_etmin();
 }
 
-// double ptss_DSE_hrt::get_opt_pkp_power() {
-//     return this->opt_pkp_power;
-// }
-
-// double ptss_DSE_hrt::get_opt_exec_time() {
-//     return this->opt_exec_time;
-// }
-
-// // Evaluate all points (Brute Force)
-// double ptss_DSE_hrt::oracle() {
-//     this->opt_pkp_power = 1e9;
-
-//     // cout << "Search space size " << search_space.size();
-//     for(auto it = search_space.begin();
-//         it != search_space.end();
-//         it++) {
-        
-//         double et = compute_execution_time(*it);
-//         double pkp = compute_pkpower(*it);
-
-//         if (et <= this->deadline && pkp <= this->opt_pkp_power) {
-//             this->opt_point = *it;
-//             this->opt_pkp_power = pkp;
-//             this->opt_exec_time = et;
-//         }
-//         // cout << *it << "," << risk << "," << util << "\n";
-//         // usleep(50);
-//     }
-//     cout << "Optimal Point : " << this->opt_point << "\n";
-//     cout << "Exec Time:" << this->opt_exec_time << ",Power:" << this->opt_pkp_power << "\n";
-//     return (this->opt_pkp_power);
-// }
-
-// alloc2_t& ptss_DSE_hrt::get_init_point() {
-//     return this->cvx_point;
-// }
 
 // a == b ?
 bool is_eq(const alloc2_t &a, const alloc2_t &b) {
@@ -583,30 +545,43 @@ void ptss_DSE_hrt::display() {
         throw invalid_argument("Did not create DGGD Opt Point");
     }
     if (this->opt_point.size() < NPH) {
-        // cout << this->opt_point << endl;
-        cout << "NO FEASIBLE POINT FOUND" << endl;
-        // throw invalid_argument("Did not create Oracle Opt Point");
+        cout << "NO FEASIBLE PKP POINT FOUND" << endl;
     }
+    if (this->opt_point2.size() < NPH) {
+        cout << "NO FEASIBLE ET POINT FOUND" << endl;
+    }
+
+#ifdef DEBUG1
+    cout << "Optimal PKP Point:" << this->opt_point<< ",et:" \
+    << compute_execution_time(this->opt_point) \
+    <<",pkp:"<<compute_pkpower(this->opt_point)<<endl;
+    
+    cout << "Optimal ET Point:" << this->opt_point2<< ",et:" \
+    << compute_execution_time(this->opt_point2) \
+    <<",pkp:"<<compute_pkpower(this->opt_point2)<<endl;
+
+    cout << "DGGD Point:" << this->dggd_point<<",et:" \
+    << compute_execution_time(this->dggd_point) \
+    <<",pkp:"<<compute_pkpower(this->dggd_point)<<endl;
+
+    cout << "DGGD2 Point:" << this->dggd_point2<<",et:" \
+    << compute_execution_time(this->dggd_point2) \
+    <<",pkp:"<<compute_pkpower(this->dggd_point2)<<endl;
+#endif
 #ifndef SHUTDOWN_ORACLE
-    cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD},";
+    // cout << "ufhew4r4{Oracle|CVX-Cont|CVX-Disc|DGGD},"<<endl;
+    cout<<"ufhew4r4-pkpcap,"<<NPH<<","\
+        <<this->pkp_cap<<","\
+        <<this->deadline<<","\
+        <<compute_pkpower(this->opt_point)<<","\
+        <<compute_pkpower(this->ext_point)<<","\
+        <<this->cvx_pkp_min<<","\
+        <<compute_pkpower(this->cvx_point)<<","\
+        <<compute_pkpower(this->dggd_point)<<","\
+        <<compute_execution_time(this->opt_point2)<<","\
+        <<compute_execution_time(this->dggd_point2)<<endl;
 #else
     cout << "ufhew4r4{Worst|CVX-Cont|CVX-Disc|DGGD},";
 #endif
-    cout << compute_pkpower(this->opt_point) << ","\
-         << this->cvx_pkp_min <<","<< compute_pkpower(this->cvx_point) <<","<< compute_pkpower(this->dggd_point) <<endl;
-    cout << "Optimal Point:" << this->opt_point<< "et" << compute_execution_time(this->opt_point)<<endl;
-    cout << "DGGD Point:" << this->dggd_point<<"et" << compute_execution_time(this->dggd_point)<<"\n\n\n";
-
-    /* Check for the availability of point in search space */
-    // alloc2_t tmp;
-    // for(int i = 0; i < NPH; i++) {
-    //     phase_t phinfo;
-    //     unsigned int benchid[] = {10,9,10,10,7};
-    //     unsigned int alloca[]  = {12,6,12,12,19};
-    //     // unsigned int alloca[]  = {13,6,13,13,16};
-    //     phinfo.bench_id = benchid[i];
-    //     phinfo.alloc    = alloca[i];
-    //     tmp.push_back(phinfo);
-    // }
-    // this->contains_point(tmp);
+    cout << "\n\n\n";
 }

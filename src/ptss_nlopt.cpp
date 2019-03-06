@@ -1,3 +1,7 @@
+/*
+ * Solve the relaxed convex programming
+ * problem using NLOpt API and toolbox
+ */
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -5,11 +9,10 @@
 #include <nlopt.hpp>
 #include "ptss_config.hpp"
 #include "ptss_nlopt.hpp"
-// #include "ptss_dse.hpp"
 
 using namespace std;
 
-double ptss_func(const std::vector<double> &x, \
+double ptss_func_pkp(const std::vector<double> &x, \
                  std::vector<double> &grad, \
                  void *my_func_data)
 {
@@ -26,6 +29,33 @@ double ptss_func(const std::vector<double> &x, \
     // for (unsigned int i = 0; i < x.size(); i++)
     //     cout<<x[i]<<",";
     // cout<<") = "<< f << endl;
+    return f;
+}
+
+
+/* Dual Problem objective function */
+double ptss_func_et(const std::vector<double> &x, \
+                 std::vector<double> &grad, \
+                 void *my_func_data) {
+
+    ptss_constraint_param *p = reinterpret_cast<ptss_constraint_param*>(my_func_data);
+    vector<double> a = p->a, b = p->b;
+    double d2 = p->deadline;
+
+    if (!grad.empty()) {
+        for (unsigned int i = 0; i < x.size()-1; i++) {
+            grad[i] = (-a[i])/(x[i]*(a[i]*log(x[i])+b[i])*(a[i]*log(x[i])+b[i]));
+        }
+        grad[x.size()-1] = 0.0;
+    }
+    /* Compute the constraint function */
+    double f = 0.0;
+    double tmp = 0.0;
+    for (unsigned int i = 0; i < x.size()-1; i++) {
+        tmp = 1/(a[i]*log(x[i])+b[i]);
+        // cout << "phase-et("<<i<<"):"<<tmp<<"|";
+        f += tmp;
+    }
     return f;
 }
 
