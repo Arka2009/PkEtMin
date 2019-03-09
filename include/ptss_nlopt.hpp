@@ -12,8 +12,8 @@ using namespace std;
 
 /**
  * The optimization space is x = <c,p>
- * where c is the vector of allocations
- * adjoined with the power consumption (p)
+ * where c is the vector of allocations (integer variables)
+ * adjoined with the power consumption (p) (continuous variables)
  */
 class ptss_constraint_param {
     public :
