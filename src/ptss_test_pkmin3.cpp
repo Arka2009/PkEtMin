@@ -8,19 +8,26 @@
 #include <queue>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
+#include <rapidcsv.h>
 #include "ptss_dse.hpp"
 #include "ptss_config.hpp"
 #include "ptss_pkmin.hpp"
 
 using namespace std;
+#define NSAMPLES 100
 
 
+/**
+ * Parse a CSV file containing the workloads
+ * in the following format
+ * Deadline,benchid1,benchid2,...
+ */
 int main(int argc, char **argv) {
-     /* Setup the Input/Out File Names */
+    /* Setup the Input/Out File Names */
     char ifileName[BUFSIZ];
     char ofileName[BUFSIZ];
-    sprintf(ifileName,"/home/amaity/Dropbox/workspace/islped_bonmip/workloads-exp6/wkld_%d.csv",NPH);
-    sprintf(ofileName,"/home/amaity/Dropbox/workspace/islped_bonmip/workloads-exp6/wkld_%d_cpp.out.csv",NPH);
+    sprintf(ifileName,"/home/amaity/Dropbox/workspace/islped_bonmip/workloads-exp1/wkld_%d.csv",NPH);
+    sprintf(ofileName,"/home/amaity/Dropbox/workspace/islped_bonmip/workloads-exp1/wkld_%d_cpp.out.csv",NPH);
 
     string idata(ifileName);
     rapidcsv::Document inDoc(idata,rapidcsv::LabelParams(-1,-1));

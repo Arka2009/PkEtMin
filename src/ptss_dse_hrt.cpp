@@ -9,6 +9,7 @@
 #include <exception>
 #include <queue>
 #include <cstdlib>
+#include <rapidcsv.h>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
 #include <ecotools/roi_hooks.h>
@@ -214,7 +215,7 @@ set<unsigned int> compute_bottleneck(const alloc2_t &x) {
 set<unsigned int> compute_maxgrad(const alloc2_t &x) {
     set<unsigned int> phs;
     double etp[NPH];
-
+    // cout << "compute_maxgrad input size = "<<x.size()<<endl;
     /* Estimate the execution time of all phases */
     for (unsigned int i = 0; i < x.size();i++) {
         alloc2_t tmp = x;
@@ -447,6 +448,27 @@ double ptss_DSE_hrt::bench_create() {
     return minf;
 }
 
+/* Benchid is given */
+double ptss_DSE_hrt::bench_create2(const vector<int> &benchid) {
+    /* Create a mix of benchmarks */
+    int a;
+    if (benchid.size() != NPH) {
+        throw runtime_error("NPH and benchid size must match");
+    }
+    for (int i = 0; i < NPH; i++) {
+        a = benchid[i];
+        a_et.push_back(AET[a]);
+        b_et.push_back(BET[a]);
+        a_p.push_back(AP[a]);
+        b_p.push_back(BP[a]);
+    }
+    this->bench = benchid;
+    
+    double minf = this->compute_cvx();
+    this->cvx_pkp_min = minf;
+    return minf;
+}
+
 bool ptss_DSE_hrt::contains_point(const alloc2_t& a) {
     bool ret = this->search_space.find(a) != this->search_space.end();
     if (ret) {
@@ -482,6 +504,63 @@ ptss_DSE_hrt::ptss_DSE_hrt(double deadline,double pkp_cap) {
     this->ptss_etmin();
 }
 
+/* Read the workload from a File, compute and write the results to another CSV file */
+ptss_DSE_hrt::ptss_DSE_hrt(rapidcsv::Document &inDoc,ostream &os,double pkp_cap, unsigned int idx, bool &done) {
+    vector<int> benchid;
+    double deadline;
+
+    /* Continuously Read the CSV Files */
+    int i = 1, j = 0;
+    try {
+        std::vector<double> wkld = inDoc.GetRow<double>(idx);
+        this->deadline = wkld[0];
+        this->pkp_cap  = pkp_cap;
+        for (i = 1; i < wkld.size(); i++) {
+            benchid.push_back((int)wkld[i]);
+        }
+        this->bench_create2(benchid);
+        /* Create an extreme point */
+        for (int i = 0; i < NPH; i++) {
+            phase_t p(this->bench[i],ULIM);
+            this->ext_point.push_back(p);
+            phase_t p2(this->bench[i],LLIM[this->bench[i]]);
+            this->ext_point2.push_back(p2);
+        }
+        /* Use a DGGD Algorithm */
+        struct timespec t1, t2;
+        clock_gettime(CLOCK_REALTIME,&t1);
+        this->ptss_pkmin();
+        clock_gettime(CLOCK_REALTIME,&t2);
+        this->ptss_etmin();
+        double roip = (t2.tv_nsec-t1.tv_nsec)*10e-9 + (t2.tv_sec-t1.tv_sec);
+        
+        /* Display/Dump */
+        for(i = 0; i < NPH; i++) {
+            os << this->dggd_point[i].alloc << ",";
+        }
+        os << compute_pkpower(this->dggd_point) << ",";
+        if (compute_execution_time(this->dggd_point) <= this->deadline) {
+            os << "passed,";
+        } else {
+            os << "failed,";
+        }
+        os << roip << ",";
+        os << compute_pkpower(this->ext_point) << ",";
+        os << compute_execution_time(this->dggd_point2) << endl;
+        
+        // os << this->deadline <<",";
+        // for(i = 0; i < NPH; i++) {
+        //     os << this->bench[i] << ",";
+        // }
+        // cout << endl;
+
+        benchid.clear();
+    } catch(out_of_range) {
+        done = true;
+        std::cout << "Reached End of CSV File (numPhases = "<< NPH <<")" << std::endl;
+        return;
+    }
+}
 
 // a == b ?
 bool is_eq(const alloc2_t &a, const alloc2_t &b) {

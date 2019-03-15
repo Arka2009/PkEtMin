@@ -27,17 +27,17 @@ def run_exp1():
         Normalized (pkp) along with increasing 
         number of phases (d)
     """
-    os.system("rm -rf exp-pkp-worst-dggd-large.txt")
-    for d in range(2,7):
-        deadline2 = np.linspace(600*d,1897*d,100)#np.random.uniform(800*d,5000*d,1000) #[u in 3178*d
+    # os.system("rm -rf exp-pkp-worst-dggd-large.txt")
+    for d in range(31,101):
+        # deadline2 = np.linspace(600*d,1897*d,100)#np.random.uniform(800*d,5000*d,1000) #[u in 3178*d
         write_build(d,False)
-        iter = 0
-        for deadline in deadline2:
-            print("Exp1:Running with #(phase)="+str(d)+", with deadline="+str(deadline))
-            #cmd = "/home/amaity/Dropbox/NUS-Research/ptss_risk_model/ptss-dse/build/ptssdse "+str(deadline)+" > dump1/exp1-ph"+str(d)+"-deadline"+str(iter)+".log"
-            cmd = "/home/amaity/Dropbox/NUS-Research/ptss_risk_model/ptss-dse/build/ptssdse "+str(deadline)+" >> exp-pkp-worst-dggd-large.txt"
-            os.system(cmd)
-            iter = iter+1
+        # iter = 0
+        # for deadline in deadline2:
+        #print("Exp1:Running with #(phase)="+str(d)+", with deadline="+str(deadline))
+        cmd = "/home/amaity/Dropbox/NUS-Research/ptss_risk_model/ptss-dse/build/ptssdse2"
+        # +str(deadline)+" >> exp-pkp-worst-dggd-large.txt"
+        os.system(cmd)
+        #iter = iter+1
 
 def run_exp2():
     d = 7
@@ -48,8 +48,8 @@ def run_exp2():
     os.system(cmd)
 
 def run_exp3():
-    d = 7
-    deadline2 = np.linspace(600*d,1897*d,100)#np.random.uniform(800*d,5000*d,1000) #[u in 3178*d
+    d = 6
+    deadline2 = np.linspace(600*d,1897*d,5)#np.random.uniform(800*d,5000*d,1000) #[u in 3178*d
     write_build(d,False)
     iter = 0
     for deadline in deadline2:
@@ -78,7 +78,7 @@ def main():
 
 if __name__=="__main__":
     # run_exp2()
-    # run_exp3()
+    run_exp3()
     # run_exp4()
-    run_exp1()
+#     run_exp1()
     # main()

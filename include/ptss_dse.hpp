@@ -5,12 +5,14 @@
 #include <vector>
 #include <set>
 #include <iterator>
-#include <math.h>
+#include <cmath>
+#include <string>
 #include <chrono>
 #include <exception>
 #include <queue>
 #include <boost/math/distributions/normal.hpp>
 #include <sys/time.h>
+#include <rapidcsv.h>
 #include "ptss_config.hpp"
 
 using namespace std;
@@ -153,10 +155,12 @@ class ptss_DSE_hrt {
 
         double compute_cvx();
         double bench_create();
+        double bench_create2(const vector<int>&);
 
     public :
         ptss_DSE_hrt(double,double);
         ptss_DSE_hrt() : ptss_DSE_hrt(2000,15) {};
+        ptss_DSE_hrt(rapidcsv::Document &,ostream &,double,unsigned int,bool &);    /* Read the workload from a CSV file */
         void construct_alloc2();
         
 
