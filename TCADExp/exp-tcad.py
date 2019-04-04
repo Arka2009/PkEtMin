@@ -28,7 +28,7 @@ def run_exp1():
         number of phases (d)
     """
     # os.system("rm -rf exp-pkp-worst-dggd-large.txt")
-    for d in range(31,101):
+    for d in range(30,101,10):
         # deadline2 = np.linspace(600*d,1897*d,100)#np.random.uniform(800*d,5000*d,1000) #[u in 3178*d
         write_build(d,False)
         # iter = 0
@@ -78,7 +78,7 @@ def main():
 
 if __name__=="__main__":
     # run_exp2()
-    run_exp3()
+    # run_exp3()
     # run_exp4()
-#     run_exp1()
+    run_exp1()
     # main()

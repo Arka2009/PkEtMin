@@ -518,6 +518,8 @@ ptss_DSE_hrt::ptss_DSE_hrt(rapidcsv::Document &inDoc,ostream &os,double pkp_cap,
         for (i = 1; i < wkld.size(); i++) {
             benchid.push_back((int)wkld[i]);
         }
+        struct timespec t1, t2;
+        clock_gettime(CLOCK_REALTIME,&t1);
         this->bench_create2(benchid);
         /* Create an extreme point */
         for (int i = 0; i < NPH; i++) {
@@ -527,8 +529,7 @@ ptss_DSE_hrt::ptss_DSE_hrt(rapidcsv::Document &inDoc,ostream &os,double pkp_cap,
             this->ext_point2.push_back(p2);
         }
         /* Use a DGGD Algorithm */
-        struct timespec t1, t2;
-        clock_gettime(CLOCK_REALTIME,&t1);
+        
         this->ptss_pkmin();
         clock_gettime(CLOCK_REALTIME,&t2);
         this->ptss_etmin();

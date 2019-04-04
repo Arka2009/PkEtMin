@@ -47,3 +47,6 @@ Datasets/
 
 # Dump Datasets
 TCADExp/dump*/
+
+# Python Generated Files
+TCADExp/ptss_config_nph.hpp

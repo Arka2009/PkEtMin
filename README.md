@@ -1,2 +1,3 @@
-# ptss-dse
-Design Space Exploration and Static Analyses for Probabilistic Timed Sensitive Systems
+# PkEtMin
+Design Space Exploration and peak power minimization of multithreaded, multiphase
+tasks with hard execution time constraints
