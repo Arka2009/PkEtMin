@@ -4,7 +4,7 @@
 // Global configuration
 #include "ptss_config_nph.hpp"
 
-#define M       16
+#define M       8
 // #define         DEBUG1
 #define ULIM    M
 extern unsigned int LLIM[];
@@ -24,4 +24,12 @@ typedef unsigned long long int ptss_int_t;
 #define BENCH_PRSC_DEDUP                      10
 // #define BENCH_PRSC_SWAPTIONS               0x411
 
+/* Rule Graph Connections */
+#define CONNECT_RULE1
+#define CONNECT_RULE2
+#define CONNECT_RULE3
+// #define CONNECT_RULE4
+
+/* Profile Timings */
+#define TIMING1 /* Search Space Construction Timing */
 #endif

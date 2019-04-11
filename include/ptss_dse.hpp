@@ -11,16 +11,13 @@
 #include <exception>
 #include <queue>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <sys/time.h>
 #include <rapidcsv.h>
 #include "ptss_config.hpp"
 
 using namespace std;
-
-
-
-typedef vector<int> alloc_t;
-typedef set<alloc_t> all_alloc_t;
+using namespace boost;
 
 class phase_t {
     public :
@@ -40,6 +37,10 @@ class phase_t {
 
 typedef vector<phase_t> alloc2_t;
 typedef set<alloc2_t> all_alloc2_t;
+enum  RulesEdgeType {RULE1,RULE2,RULE3,RULE4};
+typedef adjacency_list<vecS,vecS,directedS,alloc2_t,RulesEdgeType> SRTDSEGraph;
+typedef SRTDSEGraph::vertex_descriptor SRTDSEGraphVertex;
+typedef SRTDSEGraph::edge_descriptor SRTDSEGraphEdge;
 
 bool is_eq(const alloc2_t &a, const alloc2_t &b);
 bool is_gt(const alloc2_t &a, const alloc2_t &b);
@@ -50,74 +51,62 @@ bool lex_comp(const alloc2_t &a, const alloc2_t &b);
 
 // ostream& operator<<(ostream& os, const vector<double>& pht);
 ostream& operator<<(ostream& os, const phase_t& pht);
-ostream& operator<<(ostream& os, const alloc_t& vi);
-ostream& operator<<(ostream& os, const all_alloc_t& vvi);
 ostream& operator<<(ostream& os, const alloc2_t& vi);
 ostream& operator<<(ostream& os, const all_alloc2_t& vvi);
+ostream& operator<<(ostream& os, const RulesEdgeType &rl);
 
-double compute_risk(const alloc_t &x);
-double compute_execution_time(const alloc_t &x);
+double compute_risk(const alloc2_t &x, int deadline);
 double compute_execution_time(const alloc2_t &x);
 double estimate_exec_time(const int x, const int bench);
 // int inv_estimate_exec_time(const double y, const int bench);
 double estimate_power(const int x, const int bench);
 int inv_estimate_power(const double y, const int bench);
-double compute_estimated_util(const alloc_t &x);
 double compute_pkpower(const alloc2_t &x);
 set<unsigned int> compute_bottleneck(const alloc2_t &x);
 set<unsigned int> compute_maxgrad(const alloc2_t &x);
 void balance_out(alloc2_t &x);
-void construct_alloc_2();
+ptss_int_t hashalloc_2(const alloc2_t &x);
+alloc2_t invhashalloc_2(ptss_int_t id,const vector<int> &bench);
 
-/* Utility functions */
-void construct_alloc(all_alloc2_t &vvi, \
-                     const vector<int> &bench, \
-                     double deadline, \
-                     int ph,\
-                     alloc2_t &opt_point,\
-                     double &opt_pkp_power,\
-                     double &opt_exec_time);
 unsigned int gen_bench_id();
 
-class ptss_DSE {
+class ptss_DSE_srt {
     private :
-        /*
-         * The ptss_DSE partitions
-         * the spaces into feasible
-         * and discarded space
-         */
-        all_alloc_t search_space;
-        all_alloc_t feasible_space;
-        all_alloc_t discarded_space;
+        /* Benchmark Composition */
+        vector<int> bench;
 
+        /* use BGL */
+        // all_alloc2_t searchSpace;  /* Vertex Set */
+        SRTDSEGraph gSS;           /* Directed Graph */
+
+        /* Edge Sets */
+        // set<pair<alloc2_t,alloc2_t>> rule1Edge;
+        // set<pair<alloc2_t,alloc2_t>> rule2Edge;
+        // set<pair<alloc2_t,alloc2_t>> rule3Edge;
+        // set<pair<alloc2_t,alloc2_t>> rule4Edge;
+
+
+        /* Constraints */
         double dmr;
+        double deadline;
 
-        /* Optimal Point, just for testing */
-        alloc_t opt_point;
-        double opt_util;
+        /* Optimal Point and its corresponding Objective Function Value  */
+        alloc2_t opt_point;
+        double opt_pkp;
         double opt_risk;
 
-        // Lower and Upper "limits" points for DMR
-        alloc_t lower;
-        alloc_t upper;
-
-        // Get the initial allocated point
-        void init_point(double dmr);
-
-        bool is_initialized;
+        /* Get the initial allocated point */
+        void construct_alloc2();
 
     public :
-        ptss_DSE();
-        ptss_DSE(double dmr);
+        ptss_DSE_srt();
+        ptss_DSE_srt(double dmr);
+        ptss_DSE_srt(double deadline, double dmr);
 
-        // Evaluate all points in the Design Space
-        void evaluate_all();
+        /* Brute Force Exploration */
+        void exploreBruteForce();
 
-        // Comparison based elimination
-        // void eliminate_points_rule12();
-        void explore();
-
-        // Display
+        /* Display/Visualize the search space */
         void display();
 };
 

@@ -288,12 +288,13 @@ std::ostream& operator<<(std::ostream& os, const all_alloc2_t& vvi) {
 }
 
 
-/* An non-recursive version of the above */
+
 static inline long long calculate_time_diff_spec(struct timespec t2, struct timespec t1) {
     long long elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000000000LL + t2.tv_nsec - t1.tv_nsec;
     return elapsedTime;                                                         
 } 
 
+/* An non-recursive version of the above */
 void ptss_DSE_hrt::construct_alloc2() {
     alloc2_t vi2;
     double et, pkp;
