@@ -11,6 +11,7 @@ set(EXEC3 ptssdse2)
 set(EXEC4 ptssdse3)
 set(EXEC5 softpketmin)
 set(EXEC2 ptssutil)
+set(EXEC6 DistObj)
 
  
 ## Targets
@@ -35,7 +36,13 @@ set(EXEC2 ptssutil)
 #target_link_libraries(${EXEC4} PUBLIC -lnlopt -lm -lecotools)
 
 ## Targets
-add_executable(${EXEC5} src/ptss_dse_srt.cpp src/ptss_nlopt.cpp src/ptss_dse_hrt.cpp src/ptss_test_srt.cpp src/ptss_pkmin.cpp)
+add_executable(${EXEC5} src/ptss_dse_srt.cpp src/ptss_nlopt.cpp src/ptss_dse_hrt.cpp src/ptss_test_srt.cpp src/ptss_pkmin.cpp src/benchmark_characteristics.cpp)
 target_include_directories(${EXEC5} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR} TCADExp)
 target_compile_options(${EXEC5} PRIVATE -std=c++11 -Wall)
 target_link_libraries(${EXEC5} PUBLIC -lnlopt -lm -lecotools)
+
+## Targets
+#add_executable(${EXEC6} src/ptss_StatisticalDistribution.cpp src/ptss_nlopt.cpp src/ptss_dse_hrt.cpp src/ptss_pkmin.cpp src/ptss_test_StatisticalDistribution.cpp)
+#target_include_directories(${EXEC6} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR} TCADExp)
+#target_compile_options(${EXEC6} PRIVATE -std=c++11 -Wall)
+#target_link_libraries(${EXEC6} PUBLIC -lnlopt -lm -lecotools -lgsl -lgslcblas)

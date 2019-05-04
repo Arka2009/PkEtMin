@@ -21,73 +21,6 @@
 
 using namespace std;
 
-// AET 
-static double AET[] = {\
-0.0052912772458832795,\
-0.004254273510905619,\
-0.005266330309541947,\
-0.003688517486111831,\
-0.003959440926636103,\
-0.009683975849832148,\
-0.0024794976904501873,\
-2.153404950919569e-05,\
-0.0021638291897166048,\
-0.003533669349872262,\
-0.0002555000090127519};
-
-static double BET[] = {\
-0.002118298041182201,\
--0.0008304322052644017,\
-0.0021923143697295602,\
-0.0011143885733635485,\
-0.001000559321893281,\
--0.002893833328927599,\
--0.0007496878381248601,\
-0.0001677868522003634,\
--0.001202365402456029,\
--0.0027172901605883966,\
--7.198705194815577e-05};
-
-static double AP[] = {\
-2.9905877034358053,\
-2.0279769439421345,\
-3.3427689873417723,\
-2.947167721518987,\
-3.176307692307692,\
-1.5027499999999998,\
-2.299642857142857,\
-0.6275357142857142,\
-2.130357142857143,\
-1.7288351648351648,\
-0.8776666666666665};
-
-static double BP[] = {\
-1.9919258589511664,\
-0.3829859855334483,\
-2.140996835443037,\
-1.758180379746836,\
-1.7091208791208778,\
-4.669250000000002,\
-3.7145476190476217,\
-1.810845238095241,\
-0.834642857142855,\
-3.2989230769230744,\
-3.5970000000000013};
-
-/* Lower Limit of core allocation for different phases */
-unsigned int LLIM[] = {\
-1,\
-1,\
-1,\
-1,\
-1,\
-2,\
-2,\
-2,\
-2,\
-3,\
-2};
-
 bool phase_t::operator ==(const phase_t &b) const {
     return ((this->bench_id == b.bench_id) && (this->alloc == b.alloc));
 }
@@ -122,6 +55,7 @@ phase_t::phase_t() : bench_id{0}, alloc{0} {}
 
 double estimate_exec_time(const int x, const int bench) {
     if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        cout << "bench : "<<bench<<endl;
         throw invalid_argument( "Unrecognized Benchmark" );
     }
     double a = AET[bench];
@@ -136,6 +70,7 @@ double estimate_exec_time(const int x, const int bench) {
 
 double estimate_power(const int x, const int bench) {
     if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        cout << "bench : "<<bench<<endl;
         throw invalid_argument( "Unrecognized Benchmark" );
     }
     double a = AP[bench];
@@ -147,6 +82,7 @@ double estimate_power(const int x, const int bench) {
 
 int inv_estimate_power(const double y, const int bench) {
     if (bench > BENCH_PRSC_DEDUP || bench < BENCH_LACE_DFS) {
+        cout << "bench : "<<bench<<endl;
         throw invalid_argument( "Unrecognized Benchmark" );
     }
     double a = AP[bench];
@@ -164,7 +100,8 @@ int inv_estimate_power(const double y, const int bench) {
 
 /* 
  * Extrapolation of et can make the values often negative 
- * These need to be discarded
+ * These need to be discarded. This yields the mean execution
+ * time of phase.
  */
 double compute_execution_time(const alloc2_t &x) {
     double sum = 0.0;
@@ -198,7 +135,7 @@ set<unsigned int> compute_bottleneck(const alloc2_t &x) {
     for (unsigned int i = 0; i < x.size();i++)
         etp[i] = estimate_power(x[i].alloc,x[i].bench_id);
     const int N = sizeof(etp) / sizeof(double);
-    unsigned int least_idx = distance(etp, max_element(etp, etp + N));
+    unsigned int least_idx = std::distance(etp, max_element(etp, etp + N));
     double maxp = etp[least_idx];
 
     /* Find all indices with maximum power consumption */
@@ -228,7 +165,7 @@ set<unsigned int> compute_maxgrad(const alloc2_t &x) {
         // cout << "ph("<<i<<")-diff:"<<etp[i]<<endl;
     }
     const int N = sizeof(etp) / sizeof(double);
-    unsigned int least_idx = distance(etp, max_element(etp, etp + N));
+    unsigned int least_idx = std::distance(etp, max_element(etp, etp + N));
     double maxp = etp[least_idx];
 
     /* Find all indices with max decline in execution time */

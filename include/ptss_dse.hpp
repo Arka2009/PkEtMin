@@ -10,6 +10,8 @@
 #include <chrono>
 #include <exception>
 #include <queue>
+#include <stack>
+#include <bitset>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <sys/time.h>
@@ -37,10 +39,18 @@ class phase_t {
 
 typedef vector<phase_t> alloc2_t;
 typedef set<alloc2_t> all_alloc2_t;
-enum  RulesEdgeType {RULE1,RULE2,RULE3,RULE4};
-typedef adjacency_list<vecS,vecS,directedS,alloc2_t,RulesEdgeType> SRTDSEGraph;
-typedef SRTDSEGraph::vertex_descriptor SRTDSEGraphVertex;
-typedef SRTDSEGraph::edge_descriptor SRTDSEGraphEdge;
+enum  RulesEdgeType {RULE1,RULE2,RULE3,RULE4,INVALID};
+
+#ifdef USEBGL
+typedef adjacency_list<vecS,vecS,bidirectionalS,alloc2_t,RulesEdgeType> SRTDSEGraph;
+typedef boost::graph_traits<SRTDSEGraph>::vertex_descriptor SRTDSEGraphVertex;
+typedef boost::graph_traits<SRTDSEGraph>::edge_descriptor SRTDSEGraphEdge;
+typedef boost::graph_traits<SRTDSEGraph>::out_edge_iterator SRTDSEGraphOutEdgeIterator;
+typedef boost::graph_traits<SRTDSEGraph>::in_edge_iterator SRTDSEGraphInEdgeIterator;
+typedef boost::graph_traits<SRTDSEGraph>::vertex_iterator SRTDSEGraphVertexIterator;
+typedef boost::graph_traits<SRTDSEGraph>::degree_size_type SRTDSEGraphDegSizeType;
+#endif
+// typedef std::map<SRTDSEGraphVertex,int> SRTDSEComponent;
 
 bool is_eq(const alloc2_t &a, const alloc2_t &b);
 bool is_gt(const alloc2_t &a, const alloc2_t &b);
@@ -57,6 +67,7 @@ ostream& operator<<(ostream& os, const RulesEdgeType &rl);
 
 double compute_risk(const alloc2_t &x, int deadline);
 double compute_execution_time(const alloc2_t &x);
+double compute_execution_time_std(const alloc2_t &x);
 double estimate_exec_time(const int x, const int bench);
 // int inv_estimate_exec_time(const double y, const int bench);
 double estimate_power(const int x, const int bench);
@@ -67,24 +78,34 @@ set<unsigned int> compute_maxgrad(const alloc2_t &x);
 void balance_out(alloc2_t &x);
 ptss_int_t hashalloc_2(const alloc2_t &x);
 alloc2_t invhashalloc_2(ptss_int_t id,const vector<int> &bench);
-
+double eval_rel(const alloc2_t &pt1, const alloc2_t &pt2);
+bool eval_manhtn(const alloc2_t &pt1, const alloc2_t &pt2);
 unsigned int gen_bench_id();
+std::set<ptss_int_t> union_sets(std::set<ptss_int_t> A, std::set<ptss_int_t> B);
+std::pair<bool,double> checkFeasibilityAndPKP(const alloc2_t& v, double deadline, double dmr);
+void does_allocation_exists(ptss_int_t allc, int rule, const vector<int> bench);
 
 class ptss_DSE_srt {
     private :
         /* Benchmark Composition */
         vector<int> bench;
 
-        /* use BGL */
-        // all_alloc2_t searchSpace;  /* Vertex Set */
-        SRTDSEGraph gSS;           /* Directed Graph */
+        #ifdef USEBGL
+        /* use BGL */        
+        SRTDSEGraph gSS;                      /* Directed Graph */
+        // SRTDSEComponent gSSComponents;
+        list<SRTDSEGraphVertex> validVertices;
+        // list<SRTDSEGraphVertex> isolatedVertices; /* Vertices with outdegress zero */
+        bool graphBuilt;
+        ptss_int_t validOutDegrees(const SRTDSEGraphVertex&); /* Compute the number of valid Out Degrees */
+        #endif
 
-        /* Edge Sets */
-        // set<pair<alloc2_t,alloc2_t>> rule1Edge;
-        // set<pair<alloc2_t,alloc2_t>> rule2Edge;
-        // set<pair<alloc2_t,alloc2_t>> rule3Edge;
-        // set<pair<alloc2_t,alloc2_t>> rule4Edge;
-
+        /* Hold all the explored set of points */
+        #ifdef USEBITSET
+        bitset<TOT2> exploredSet; 
+        #else
+        vector<bool> exploredSet;
+        #endif
 
         /* Constraints */
         double dmr;
@@ -94,20 +115,54 @@ class ptss_DSE_srt {
         alloc2_t opt_point;
         double opt_pkp;
         double opt_risk;
+        alloc2_t bktrack_point;
+
+        /* Final point obtained by Random walker */
+        alloc2_t rwalkerFinal;
 
         /* Get the initial allocated point */
         void construct_alloc2();
+
+        /* Comparison operators */
+        // bool operator<(const SRTDSEGraphVertex&, const SRTDSEGraphVertex&);
+        // bool operator<=(const SRTDSEGraphVertex&, const SRTDSEGraphVertex&);
+
+        /* Apply rules to get child points */
+        set<ptss_int_t> applyRule1(const ptss_int_t pt1);
+        set<ptss_int_t> applyRule2(const ptss_int_t pt1);
+        set<ptss_int_t> applyRule3(const ptss_int_t pt1);
+        set<ptss_int_t> applyRule4(const ptss_int_t pt1);
 
     public :
         ptss_DSE_srt();
         ptss_DSE_srt(double dmr);
         ptss_DSE_srt(double deadline, double dmr);
+        ptss_DSE_srt(rapidcsv::Document &inDoc,unsigned int idx, bool &done); /* Read the workload from a CSV file */
 
         /* Brute Force Exploration */
         void exploreBruteForce();
 
+        /* Obtain the DMR */
+        double geDMR() {return this->dmr;}
+        double getDeadline() {return this->deadline;}
+
         /* Display/Visualize the search space */
         void display();
+
+        #ifdef USEBGL
+        /* Randomly walk the graph */
+        void random_walk();
+        void random_walk2(); /*  Augmented with random walk and BnB */
+        void random_walk3(ptss_int_t start_offset);
+        ptss_int_t backtrackAll(const SRTDSEGraphVertex& start_node);
+        #endif
+        ptss_int_t backtrackAll(ptss_int_t start_node);
+        void random_walk4(ptss_int_t start_offset);
+
+        #ifdef USEBGL
+        /* Visaulize the graph */
+        void printRuleGraph();
+        #endif
 };
 
 class ptss_DSE_hrt {
@@ -174,6 +229,7 @@ class ptss_DSE_hrt {
 
 };
 
-
+template <typename I>
+I random_element(I begin, I end);
 /* Objective Function Constraints */
 #endif

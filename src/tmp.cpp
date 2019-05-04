@@ -449,3 +449,142 @@ int main () {
     // alloc_t b = {1,1,3,4,2};
     // cout << is_lt(b,a) << "\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HistDistType::HistDistType() {
+    // this->hst = gsl_histogram_alloc(HISTBINSIZE);
+    // gsl_histogram_set_ranges(this->hst, globalBinEdges, HISTBINSIZE+1);
+}
+
+// double HistDistType::pdf(const double& x) {}
+// double HistDistType::cdf(const double& x) {}
+// double HistDistType::sf(const double& x) {}
+// double HistDistType::ppf(const double& quantile) {}
+// double HistDistType::isf(const double& quantile) {}
+// double HistDistType::mean(){}
+// double HistDistType::var(){}
+// double HistDistType::stdev(){}
+
+
+
+
+
+
+
+
+/* Arbitrary statistical distribution */
+// class BaseStatisticalDistribution {
+//     /**
+//      * This is a C++ re-implementation
+//      * of ptss_utils.etPDF class
+//      */
+//     public:
+//         BaseStatisticalDistribution();
+//         virtual ~BaseStatisticalDistribution();
+
+//         // Distribution functions
+//         virtual double pdf(const double& x) const = 0;
+//         virtual double cdf(const double& x) const = 0;
+//         virtual double sf(const double& x) const = 0;
+
+//         // Inverse cumulative distribution functions (aka the quantile function)
+//         virtual double ppf(const double& quantile) const = 0;
+//         virtual double isf(const double& quantile) const = 0;
+
+//         // Descriptive stats
+//         virtual double mean() const = 0;
+//         virtual double var() const = 0;
+//         virtual double stdev() const = 0;
+
+//         // Obtain a sequence of random draws from this distribution
+//         virtual void sample(const std::vector<double>& uniform_draws,std::vector<double>& dist_draws) = 0;
+    
+//         // Obtain the number of bins
+//         virtual ptss_int_t getNumBinEdges() = 0;
+//     protected:
+//         // Support
+//         double inf;
+//         double sup;
+//         double support;     
+// };
+
+/* Add two independant distributions */
+// BaseStatisticalDistribution& operator+(BaseStatisticalDistribution &, const BaseStatisticalDistribution &);
+
+/* Histogram statistical distribution */
+class HistDistType {
+    private:
+        random_device rd;          // Will be used to obtain a seed for the random number engine
+        mt19937 gen;               // Standard mersenne_twister_engine seeded with rd()
+        ptss_int_t numBinEdges;    // Number of histogram bins
+        // gsl_histogram     *hst;
+        // gsl_histogram_pdf *p;
+    public:
+        /* Accept a histogram */
+        HistDistType();            // Accept a CSV Filename 
+        ~HistDistType();
+
+        // Distribution functions
+        double pdf(const double& x);
+        double cdf(const double& x);
+        double sf(const double& x);
+
+        // Inverse cumulative distribution functions (aka the quantile function)
+        double ppf(const double& quantile);
+        double isf(const double& quantile);
+
+        // Descriptive stats
+        double mean();
+        double var();
+        double stdev();
+
+        // Obtain a sequence of random draws from this distribution
+        void sample(const std::vector<double>& uniform_draws,std::vector<double>& dist_draws);
+    
+        // Obtain the number of bins
+        ptss_int_t getNumBinEdges();
+};
+
+
+
+
+
+
+template <class Graph> struct exercise_vertex {
+    //...
+    void operator()(const Vertex& v) const
+    {
+      typedef graph_traits<Graph> GraphTraits;
+      typename property_map<Graph, vertex_index_t>::type 
+        index = get(vertex_index, g);
+
+      std::cout << "out-edges: ";
+      typename GraphTraits::out_edge_iterator out_i, out_end;
+      typename GraphTraits::edge_descriptor e;
+      for (tie(out_i, out_end) = out_edges(v, g); 
+           out_i != out_end; ++out_i) {
+        e = *out_i;
+        Vertex src = source(e, g), targ = target(e, g);
+        std::cout << "(" << index[src] << "," 
+                  << index[targ] << ") ";
+      }
+      std::cout << std::endl;
+      //...
+    }
+    //...
+  };

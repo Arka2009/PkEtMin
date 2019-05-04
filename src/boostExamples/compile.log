@@ -1,0 +1,723 @@
+tmp3.cpp:25:1: warning: ‘typedef’ was ignored in this declaration [enabled by default]
+ };
+ ^
+tmp3.cpp:29:1: warning: ‘typedef’ was ignored in this declaration [enabled by default]
+ };
+ ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp: In instantiation of ‘struct boost::adj_list_any_vertex_pa::bind_<boost::vertex_index_t, boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, NodeType>’:
+/usr/include/boost/graph/detail/adjacency_list.hpp:2613:12:   required from ‘struct boost::detail::adj_list_choose_vertex_pa<boost::vertex_index_t, boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, NodeType>’
+/usr/include/boost/graph/detail/adjacency_list.hpp:2750:12:   required from ‘struct boost::adj_list_vertex_property_selector::bind_<boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, NodeType, boost::vertex_index_t>’
+/usr/include/boost/graph/properties.hpp:201:12:   required from ‘struct boost::detail::vertex_property_map<boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, boost::vertex_index_t>’
+/usr/include/boost/graph/properties.hpp:212:10:   required from ‘struct boost::property_map<boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, boost::vertex_index_t, void>’
+/usr/include/boost/graph/detail/adjacency_list.hpp:1725:5:   required by substitution of ‘template<class Config, class Base, class Property> typename boost::property_map<typename Config::graph_type, Property>::type boost::get(Property, boost::adj_list_helper<Config, Base>&) [with Config = boost::detail::adj_list_gen<boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, boost::setS, boost::setS, boost::directedS, NodeType, EdgeType, boost::no_property, boost::listS>::config; Base = boost::directed_graph_helper<boost::detail::adj_list_gen<boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>, boost::setS, boost::setS, boost::directedS, NodeType, EdgeType, boost::no_property, boost::listS>::config>; Property = boost::vertex_index_t]’
+tmp3.cpp:51:45:   required from here
+/usr/include/boost/graph/detail/adjacency_list.hpp:2543:29: error: forming reference to void
+         typedef value_type& reference;
+                             ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:2544:35: error: forming reference to void
+         typedef const value_type& const_reference;
+                                   ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:2547:47: error: forming reference to void
+           <Graph, value_type, reference, Tag> type;
+                                               ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:2549:53: error: forming reference to void
+           <Graph, value_type, const_reference, Tag> const_type;
+                                                     ^
+tmp3.cpp: In function ‘int main()’:
+tmp3.cpp:51:45: error: no matching function for call to ‘get(boost::vertex_index_t, Graph&)’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+tmp3.cpp:51:45: note: candidates are:
+In file included from /usr/include/boost/graph/adjacency_list.hpp:36:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/property_map/property_map.hpp:127:19: note: template<class T> const T& get(const T*, std::ptrdiff_t)
+   inline const T& get(const T* pa, std::ptrdiff_t k) { return pa[k]; }
+                   ^
+/usr/include/boost/property_map/property_map.hpp:127:19: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const T*’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/functional:55:0,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/tuple:773:5: note: template<long unsigned int __i, class ... _Elements> constexpr typename std::__add_r_ref<typename std::tuple_element<__i, std::tuple<_Args2 ...> >::type>::type std::get(std::tuple<_Args2 ...>&&)
+     get(tuple<_Elements...>&& __t) noexcept
+     ^
+/usr/include/c++/4.8/tuple:773:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::tuple<_Args2 ...>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/functional:55:0,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/tuple:766:5: note: template<long unsigned int __i, class ... _Elements> constexpr typename std::__add_c_ref<typename std::tuple_element<__i, std::tuple<_Args2 ...> >::type>::type std::get(const std::tuple<_Args2 ...>&)
+     get(const tuple<_Elements...>& __t) noexcept
+     ^
+/usr/include/c++/4.8/tuple:766:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const std::tuple<_Args2 ...>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/functional:55:0,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/tuple:759:5: note: template<long unsigned int __i, class ... _Elements> constexpr typename std::__add_ref<typename std::tuple_element<__i, std::tuple<_Args2 ...> >::type>::type std::get(std::tuple<_Args2 ...>&)
+     get(tuple<_Elements...>& __t) noexcept
+     ^
+/usr/include/c++/4.8/tuple:759:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::tuple<_Args2 ...>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:39:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/array:285:5: note: template<long unsigned int _Int, class _Tp, long unsigned int _Nm> constexpr const _Tp& std::get(const std::array<_Tp, _Nm>&)
+     get(const array<_Tp, _Nm>& __arr) noexcept
+     ^
+/usr/include/c++/4.8/array:285:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const std::array<_Tp, _Nm>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:39:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/array:277:5: note: template<long unsigned int _Int, class _Tp, long unsigned int _Nm> constexpr _Tp&& std::get(std::array<_Tp, _Nm>&&)
+     get(array<_Tp, _Nm>&& __arr) noexcept
+     ^
+/usr/include/c++/4.8/array:277:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::array<_Tp, _Nm>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:39:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/array:268:5: note: template<long unsigned int _Int, class _Tp, long unsigned int _Nm> constexpr _Tp& std::get(std::array<_Tp, _Nm>&)
+     get(array<_Tp, _Nm>& __arr) noexcept
+     ^
+/usr/include/c++/4.8/array:268:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::array<_Tp, _Nm>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:38:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/utility:152:5: note: template<long unsigned int _Int, class _Tp1, class _Tp2> constexpr const typename std::tuple_element<_Int, std::pair<_Tp1, _Tp2> >::type& std::get(const std::pair<_Tp1, _Tp2>&)
+     get(const std::pair<_Tp1, _Tp2>& __in) noexcept
+     ^
+/usr/include/c++/4.8/utility:152:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const std::pair<_Tp1, _Tp2>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:38:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/utility:147:5: note: template<long unsigned int _Int, class _Tp1, class _Tp2> constexpr typename std::tuple_element<_Int, std::pair<_Tp1, _Tp2> >::type&& std::get(std::pair<_Tp1, _Tp2>&&)
+     get(std::pair<_Tp1, _Tp2>&& __in) noexcept
+     ^
+/usr/include/c++/4.8/utility:147:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::pair<_Tp1, _Tp2>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/c++/4.8/tuple:38:0,
+                 from /usr/include/c++/4.8/functional:55,
+                 from /usr/include/c++/4.8/memory:79,
+                 from /usr/include/boost/unordered/unordered_set_fwd.hpp:14,
+                 from /usr/include/boost/unordered/unordered_set.hpp:17,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/c++/4.8/utility:142:5: note: template<long unsigned int _Int, class _Tp1, class _Tp2> constexpr typename std::tuple_element<_Int, std::pair<_Tp1, _Tp2> >::type& std::get(std::pair<_Tp1, _Tp2>&)
+     get(std::pair<_Tp1, _Tp2>& __in) noexcept
+     ^
+/usr/include/c++/4.8/utility:142:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘std::pair<_Tp1, _Tp2>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1580:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> const GraphProperty& boost::get(boost::graph_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>*)
+ get(graph_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1580:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::graph_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1571:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> GraphProperty& boost::get(boost::graph_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>*)
+ get(graph_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1571:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::graph_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1564:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::graph_all_t>::const_type boost::get(boost::graph_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(graph_all_t, const BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1564:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::graph_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1557:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::graph_all_t>::type boost::get(boost::graph_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(graph_all_t, BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1557:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::graph_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1538:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> const EdgeProperty& boost::get(boost::edge_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, const typename boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>::edge_descriptor&)
+ get(edge_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1538:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1529:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> EdgeProperty& boost::get(boost::edge_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, const typename boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>::edge_descriptor&)
+ get(edge_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1529:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1522:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::edge_all_t>::const_type boost::get(boost::edge_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(edge_all_t, const BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1522:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1515:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::edge_all_t>::type boost::get(boost::edge_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(edge_all_t, BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1515:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1497:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> const VertexProperty& boost::get(boost::vertex_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, Vertex)
+ get(vertex_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1497:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::vertex_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1489:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> VertexProperty& boost::get(boost::vertex_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, Vertex)
+ get(vertex_all_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1489:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::vertex_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1482:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::vertex_all_t>::const_type boost::get(boost::vertex_all_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(vertex_all_t, const BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1482:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::vertex_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1475:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::vertex_all_t>::type boost::get(boost::vertex_all_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(vertex_all_t, BOOST_CSR_GRAPH_TYPE& g)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1475:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::vertex_all_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1467:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> EdgeIndex boost::get(boost::edge_index_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, typename boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>::edge_descriptor)
+ get(edge_index_t, BOOST_CSR_GRAPH_TYPE&,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1467:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1458:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::edge_index_t>::const_type boost::get(boost::edge_index_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(edge_index_t, BOOST_CSR_GRAPH_TYPE&)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1458:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1450:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> EdgeIndex boost::get(boost::edge_index_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, typename boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>::edge_descriptor)
+ get(edge_index_t, const BOOST_CSR_GRAPH_TYPE&,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1450:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1441:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, boost::edge_index_t>::const_type boost::get(boost::edge_index_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(edge_index_t, const BOOST_CSR_GRAPH_TYPE&)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1441:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘boost::edge_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1433:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> Vertex boost::get(boost::vertex_index_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, Vertex)
+ get(vertex_index_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1433:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1426:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> boost::typed_identity_property_map<Vertex> boost::get(boost::vertex_index_t, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(vertex_index_t, BOOST_CSR_GRAPH_TYPE&)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1426:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1418:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> Vertex boost::get(boost::vertex_index_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, Vertex)
+ get(vertex_index_t,
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1418:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1411:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex> boost::typed_identity_property_map<Vertex> boost::get(boost::vertex_index_t, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(vertex_index_t, const BOOST_CSR_GRAPH_TYPE&)
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1411:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1358:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex, class Tag> typename boost::property_traits<typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::const_type>::reference boost::get(Tag, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::key_type)
+ get(Tag tag, const BOOST_CSR_GRAPH_TYPE& g, typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::key_type k) {
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1358:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1350:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex, class Tag> typename boost::property_traits<typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::type>::reference boost::get(Tag, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&, typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::key_type)
+ get(Tag tag, BOOST_CSR_GRAPH_TYPE& g, typename property_map<BOOST_CSR_GRAPH_TYPE, Tag>::key_type k) {
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1350:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1344:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex, class Tag> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::const_type boost::get(Tag, const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(Tag tag, const BOOST_CSR_GRAPH_TYPE& g) {
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1344:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:28:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1338:1: note: template<class Directed, class VertexProperty, class EdgeProperty, class GraphProperty, class Vertex, class EdgeIndex, class Tag> typename boost::property_map<boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>, Tag>::type boost::get(Tag, boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>&)
+ get(Tag tag, BOOST_CSR_GRAPH_TYPE& g) {
+ ^
+/usr/include/boost/graph/compressed_sparse_row_graph.hpp:1338:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::compressed_sparse_row_graph<Directed, VertexProperty, EdgeProperty, GraphProperty, Vertex, EdgeIndex>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/compressed_sparse_row_graph.hpp:27:0,
+                 from /usr/include/boost/graph/graphviz.hpp:28,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/filtered_graph.hpp:464:3: note: template<class G, class EP, class VP, class Property, class Key> typename boost::property_map_value<G, Property>::type boost::get(Property, const boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>&, const Key&)
+   get(Property p, const filtered_graph<G, EP, VP>& g, const Key& k)
+   ^
+/usr/include/boost/graph/filtered_graph.hpp:464:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/compressed_sparse_row_graph.hpp:27:0,
+                 from /usr/include/boost/graph/graphviz.hpp:28,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/filtered_graph.hpp:456:3: note: template<class G, class EP, class VP, class Property> typename boost::property_map<G, Property>::const_type boost::get(Property, const boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>&)
+   get(Property p, const filtered_graph<G, EP, VP>& g)
+   ^
+/usr/include/boost/graph/filtered_graph.hpp:456:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/compressed_sparse_row_graph.hpp:27:0,
+                 from /usr/include/boost/graph/graphviz.hpp:28,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/filtered_graph.hpp:449:3: note: template<class G, class EP, class VP, class Property> typename boost::property_map<G, Property>::type boost::get(Property, boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>&)
+   get(Property p, filtered_graph<G, EP, VP>& g)
+   ^
+/usr/include/boost/graph/filtered_graph.hpp:449:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::filtered_graph<Graph, EdgePredicate, VertexPredicate>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:25:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/property_map/dynamic_property_map.hpp:330:1: note: template<class Key> std::string boost::get(const string&, const boost::dynamic_properties&, const Key&)
+ get(const std::string& name, const dynamic_properties& dp, const Key& key)
+ ^
+/usr/include/boost/property_map/dynamic_property_map.hpp:330:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘const string& {aka const std::basic_string<char>&}’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:25:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/property_map/dynamic_property_map.hpp:317:1: note: template<class Value, class Key> Value boost::get(const string&, const boost::dynamic_properties&, const Key&, boost::type<Value>)
+ get(const std::string& name, const dynamic_properties& dp, const Key& key, type<Value>)
+ ^
+/usr/include/boost/property_map/dynamic_property_map.hpp:317:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘const string& {aka const std::basic_string<char>&}’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:25:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/property_map/dynamic_property_map.hpp:304:1: note: template<class Value, class Key> Value boost::get(const string&, const boost::dynamic_properties&, const Key&)
+ get(const std::string& name, const dynamic_properties& dp, const Key& key)
+ ^
+/usr/include/boost/property_map/dynamic_property_map.hpp:304:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   cannot convert ‘vertex_index’ (type ‘boost::vertex_index_t’) to type ‘const string& {aka const std::basic_string<char>&}’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:1032:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, boost::local_property<Property> >::const_type boost::get(boost::local_property<Property>, const boost::subgraph<Graph>&)
+ get(local_property<Property> p, const subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:1032:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::local_property<Property>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:1023:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, boost::local_property<Property> >::type boost::get(boost::local_property<Property>, boost::subgraph<Graph>&)
+ get(local_property<Property> p, subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:1023:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::local_property<Property>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:1010:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, boost::global_property<Property> >::const_type boost::get(boost::global_property<Property>, const boost::subgraph<Graph>&)
+ get(global_property<Property> p, const subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:1010:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::global_property<Property>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:1001:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, boost::global_property<Property> >::type boost::get(boost::global_property<Property>, boost::subgraph<Graph>&)
+ get(global_property<Property> p, subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:1001:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::global_property<Property>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:982:1: note: template<class G, class Property, class Key> typename boost::property_traits<typename boost::property_map<boost::subgraph<Graph>, Property>::const_type>::value_type boost::get(Property, const boost::subgraph<Graph>&, const Key&)
+ get(Property p, const subgraph<G>& g, const Key& k) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:982:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::subgraph<Graph>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:973:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, Property>::const_type boost::get(Property, const boost::subgraph<Graph>&)
+ get(Property p, const subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:973:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::subgraph<Graph>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/graphviz.hpp:23:0,
+                 from tmp3.cpp:2:
+/usr/include/boost/graph/subgraph.hpp:966:1: note: template<class G, class Property> typename boost::property_map<boost::subgraph<Graph>, Property>::type boost::get(Property, boost::subgraph<Graph>&)
+ get(Property p, subgraph<G>& g) {
+ ^
+/usr/include/boost/graph/subgraph.hpp:966:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘boost::subgraph<Graph>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp:1754:5: note: template<class Config, class Base, class Property, class Key> typename boost::property_traits<typename boost::property_map<typename Config::graph_type, Property>::const_type>::reference boost::get(Property, const boost::adj_list_helper<Config, Base>&, const Key&)
+     get(Property p, const adj_list_helper<Config, Base>& g, const Key& key) {
+     ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:1754:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   candidate expects 3 arguments, 2 provided
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp:1744:5: note: template<class Config, class Base, class Property, class Key> typename boost::property_traits<typename boost::property_map<typename Config::graph_type, Property>::type>::reference boost::get(Property, boost::adj_list_helper<Config, Base>&, const Key&)
+     get(Property p, adj_list_helper<Config, Base>& g, const Key& key) {
+     ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:1744:5: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   candidate expects 3 arguments, 2 provided
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp:1733:5: note: template<class Config, class Base, class Property> typename boost::property_map<typename Config::graph_type, Property>::const_type boost::get(Property, const boost::adj_list_helper<Config, Base>&)
+     get(Property p, const adj_list_helper<Config, Base>& g) {
+     ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:1733:5: note:   template argument deduction/substitution failed:
+/usr/include/boost/graph/detail/adjacency_list.hpp:1725:5: note: template<class Config, class Base, class Property> typename boost::property_map<typename Config::graph_type, Property>::type boost::get(Property, boost::adj_list_helper<Config, Base>&)
+     get(Property p, adj_list_helper<Config, Base>& g) {
+     ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:1725:5: note:   substitution of deduced template arguments resulted in errors seen above
+/usr/include/boost/graph/detail/adjacency_list.hpp:394:3: note: template<class Tag, class Vertex, class EdgeVec, class Property> const typename boost::property_value<Property, Tag>::type& boost::get(Tag, const boost::detail::stored_ra_edge_iter<Vertex, EdgeVec, Property>&)
+   get(Tag property_tag,
+   ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:394:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::detail::stored_ra_edge_iter<Vertex, EdgeVec, Property>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp:386:3: note: template<class Tag, class Vertex, class Iter, class Property> const typename boost::property_value<Property, Tag>::type& boost::get(Tag, const boost::detail::stored_edge_iter<Vertex, Iter, Property>&)
+   get(Tag property_tag,
+   ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:386:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::detail::stored_edge_iter<Vertex, Iter, Property>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:246:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/graph/detail/adjacency_list.hpp:378:3: note: template<class Tag, class Vertex, class Property> const typename boost::property_value<Property, Tag>::type& boost::get(Tag, const boost::detail::stored_edge_property<Vertex, Property>&)
+   get(Tag property_tag,
+   ^
+/usr/include/boost/graph/detail/adjacency_list.hpp:378:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   ‘Graph {aka boost::adjacency_list<boost::setS, boost::setS, boost::directedS, NodeType, EdgeType>}’ is not derived from ‘const boost::detail::stored_edge_property<Vertex, Property>’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/optional.hpp:15:0,
+                 from /usr/include/boost/graph/named_graph.hpp:21,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/optional/optional.hpp:1210:1: note: template<class T> typename boost::optional<T>::pointer_type boost::get(boost::optional<T>*)
+ get ( optional<T>* opt )
+ ^
+/usr/include/boost/optional/optional.hpp:1210:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::optional<T>*’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/optional.hpp:15:0,
+                 from /usr/include/boost/graph/named_graph.hpp:21,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/optional/optional.hpp:1202:1: note: template<class T> typename boost::optional<T>::pointer_const_type boost::get(const boost::optional<T>*)
+ get ( optional<T> const* opt )
+ ^
+/usr/include/boost/optional/optional.hpp:1202:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::optional<T>*’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/optional.hpp:15:0,
+                 from /usr/include/boost/graph/named_graph.hpp:21,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/optional/optional.hpp:1192:1: note: template<class T> typename boost::optional<T>::reference_type boost::get(boost::optional<T>&)
+ get ( optional<T>& opt )
+ ^
+/usr/include/boost/optional/optional.hpp:1192:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::optional<T>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/optional.hpp:15:0,
+                 from /usr/include/boost/graph/named_graph.hpp:21,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/optional/optional.hpp:1184:1: note: template<class T> typename boost::optional<T>::reference_const_type boost::get(const boost::optional<T>&)
+ get ( optional<T> const& opt )
+ ^
+/usr/include/boost/optional/optional.hpp:1184:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::optional<T>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/named_graph.hpp:20:0,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/multi_index_container.hpp:981:1: note: template<int N, class Value, class IndexSpecifierList, class Allocator> typename boost::multi_index::nth_index<boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>, N>::type& boost::multi_index::get(boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>&)
+ get(
+ ^
+/usr/include/boost/multi_index_container.hpp:981:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/named_graph.hpp:20:0,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/multi_index_container.hpp:1004:1: note: template<int N, class Value, class IndexSpecifierList, class Allocator> const typename boost::multi_index::nth_index<boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>, N>::type& boost::multi_index::get(const boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>&)
+ get(
+ ^
+/usr/include/boost/multi_index_container.hpp:1004:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/named_graph.hpp:20:0,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/multi_index_container.hpp:1049:1: note: template<class Tag, class Value, class IndexSpecifierList, class Allocator> typename boost::multi_index::index<boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>, Tag>::type& boost::multi_index::get(boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>&)
+ get(
+ ^
+/usr/include/boost/multi_index_container.hpp:1049:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/named_graph.hpp:20:0,
+                 from /usr/include/boost/graph/adjacency_list.hpp:45,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/multi_index_container.hpp:1068:1: note: template<class Tag, class Value, class IndexSpecifierList, class Allocator> const typename boost::multi_index::index<boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>, Tag>::type& boost::multi_index::get(const boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>&)
+ get(
+ ^
+/usr/include/boost/multi_index_container.hpp:1068:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::multi_index::multi_index_container<Value, IndexSpecifierList, Allocator>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:36:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/property_map/property_map.hpp:300:3: note: template<class PropertyMap, class Reference, class K> Reference boost::get(const boost::put_get_helper<Reference, PropertyMap>&, const K&)
+   get(const put_get_helper<Reference, PropertyMap>& pa, const K& k)
+   ^
+/usr/include/boost/property_map/property_map.hpp:300:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::put_get_helper<Reference, PropertyMap>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/graph/adjacency_list.hpp:36:0,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/property_map/property_map.hpp:163:3: note: template<class K, class V> const typename boost::readable_property_map_archetype<KeyArchetype, ValueArchetype>::reference& boost::get(const boost::readable_property_map_archetype<K, V>&, const typename boost::readable_property_map_archetype<K, V>::key_type&)
+   get(const readable_property_map_archetype<K,V>&, 
+   ^
+/usr/include/boost/property_map/property_map.hpp:163:3: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::readable_property_map_archetype<K, V>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/tuple/tuple.hpp:28:0,
+                 from /usr/include/boost/unordered/detail/allocate.hpp:28,
+                 from /usr/include/boost/unordered/detail/buckets.hpp:16,
+                 from /usr/include/boost/unordered/detail/table.hpp:15,
+                 from /usr/include/boost/unordered/detail/equivalent.hpp:15,
+                 from /usr/include/boost/unordered/unordered_set.hpp:18,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/tuple/detail/tuple_basic.hpp:216:1: note: template<int N, class HT, class TT> typename boost::tuples::access_traits<typename boost::tuples::element<N, boost::tuples::cons<HT, TT> >::type>::non_const_type boost::tuples::get(boost::tuples::cons<HT, TT>&)
+ get(cons<HT, TT>& c) {
+ ^
+/usr/include/boost/tuple/detail/tuple_basic.hpp:216:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘boost::tuples::cons<HT, TT>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));
+                                             ^
+In file included from /usr/include/boost/tuple/tuple.hpp:28:0,
+                 from /usr/include/boost/unordered/detail/allocate.hpp:28,
+                 from /usr/include/boost/unordered/detail/buckets.hpp:16,
+                 from /usr/include/boost/unordered/detail/table.hpp:15,
+                 from /usr/include/boost/unordered/detail/equivalent.hpp:15,
+                 from /usr/include/boost/unordered/unordered_set.hpp:18,
+                 from /usr/include/boost/unordered_set.hpp:17,
+                 from /usr/include/boost/graph/adjacency_list.hpp:21,
+                 from /usr/include/boost/graph/adj_list_serialize.hpp:12,
+                 from tmp3.cpp:1:
+/usr/include/boost/tuple/detail/tuple_basic.hpp:230:1: note: template<int N, class HT, class TT> typename boost::tuples::access_traits<typename boost::tuples::element<N, boost::tuples::cons<HT, TT> >::type>::const_type boost::tuples::get(const boost::tuples::cons<HT, TT>&)
+ get(const cons<HT, TT>& c) {
+ ^
+/usr/include/boost/tuple/detail/tuple_basic.hpp:230:1: note:   template argument deduction/substitution failed:
+tmp3.cpp:51:45: note:   mismatched types ‘const boost::tuples::cons<HT, TT>’ and ‘boost::vertex_index_t’
+     dp.property("node_id",get(vertex_index,g));

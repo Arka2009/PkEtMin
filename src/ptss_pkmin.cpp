@@ -52,6 +52,15 @@ double eval_rel2(const alloc2_t &pt1, const alloc2_t &pt2) {
     return 0.0;
 }
 
+/* Evaluate the Manhattan distance between two coordinates */
+bool eval_manhtn(const alloc2_t &pt1, const alloc2_t &pt2) {
+    for(int i = 0; i < NPH; i++) {
+        if (pt1[i] != pt2[i])
+            return false;
+    }
+    return true;
+}
+
 /* Nowhere else to go (lowest allocation possible) */
 bool hit_the_wall(const alloc2_t &pt1) {
     for (unsigned int i = 0; i < pt1.size(); i++) {

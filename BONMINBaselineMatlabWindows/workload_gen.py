@@ -42,6 +42,43 @@ def workloadGen(numPhases,numDeadlines,numWorkloads,suffix,deadlineFixed=False):
             p = p + 1
             fl2.write(str(benchid[p])+"\n")
     
+    fl2.close()
+
+def workloadGenSRT(numPhases,numDeadlines,numWorkloads,suffix,deadlineFixed=False):
+    """
+        Create a workload with "numPhases"
+        with different deadlines and workload
+        mix and export it in a csv file.
+    """
+    fl2       = open("workloads-"+suffix+"/wkld_"+str(numPhases)+".csv",'w')
+    
+    # Write the CSV header
+    # fl2.write("Deadline,")
+    # for p in range(1,numPhases):
+    #     fl2.write("bench-"+str(p)+",")
+    # fl2.write("bench-"+str(numPhases)+"\n")
+    
+    # For Each deadline
+    if deadlineFixed :
+        deadlines = [14972*numPhases/7]
+    else:
+        deadlines = np.linspace(80*numPhases,200*numPhases,numDeadlines)
+    #dmrs = np.linspace(0.1,0.8,numDeadlines)
+
+    for i in range(0,numWorkloads):
+        # Create a Random Workloads
+        benchid = np.random.randint(0,5,numPhases)
+
+        # Export the workload for each possible deadline
+        for d in deadlines:
+            # Write the CSV Entry
+            fl2.write(str(d)+",")
+            fl2.write(str(0.11)+",")
+            for p in range(0,len(benchid)-1):
+                fl2.write(str(benchid[p])+",")
+            p = p + 1
+            fl2.write(str(benchid[p])+"\n")
+    
     fl2.close()    
 
 def workloadGenDual(numPhases,numPowers,numWorkloads,suffix,powerFixed=False):
@@ -125,11 +162,11 @@ def exp6():
     for numPhases in phases:
         workloadGen(numPhases,10,10,"exp6",False)
 
+def expSRT():
+    os.system('mkdir -p workloads-SRT')
+    workloadGenSRT(8,5,1,"SRT",deadlineFixed=False)
+
 if __name__=="__main__":
-    # workloadGen(6,10,10)
-    # os.system('mkdir workloads-exp3 workloads-exp4')
-    # exp3()
-    # exp4()
-    os.system('mkdir workloads-exp6')
-    # exp5()
-    exp6()
+    # os.system('mkdir workloads-exp6')
+    # exp6()
+    expSRT()
