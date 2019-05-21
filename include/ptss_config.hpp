@@ -4,12 +4,13 @@
 // Global configuration
 #include "ptss_config_nph.hpp"
 
-#define M       16
+#define M       3
 
 // #define         DEBUG1
 #define ULIM    M
+#define TOT2     27
 // #define TOT2     1048576    /* Size of the search space NPH = 5 */
-#define TOT2        16777216    /* Size of the search space NPH = 6 */
+// #define TOT2     16777216    /* Size of the search space NPH = 6 */
 // #define TOT2     4294967296    /* Size of the search space NPH = 8 */
 
 extern unsigned int LLIM[];
@@ -35,7 +36,7 @@ typedef unsigned long long int ptss_int_t;
 // #define BENCH_PRSC_SWAPTIONS               0x411
 
 /* Rule Graph Connections */
-// #define USEBGL /* USE BGL to construct a rule graph */
+#define USEBGL /* USE BGL to construct a rule graph */
 #define USEBITSET
 #ifdef USEBGL
 #define CONNECT_RULE1

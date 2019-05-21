@@ -167,7 +167,7 @@ void ptss_DSE_srt::construct_alloc2() {
 
     #ifdef USEBGL
     /* Create the vertex set */
-    vector<SRTDSEGraphVertex> vdMap(TOT);
+    vector<SRTDSEGraphVertex> vdMap(TOT2);
     #endif
 
     #ifdef ENABLE_BRUTE_FORCE
@@ -215,7 +215,7 @@ void ptss_DSE_srt::construct_alloc2() {
     
     #ifdef USEBGL
     /* Make edge connections */
-    for (cnt = 0; cnt < TOT; cnt++) {
+    for (cnt = 0; cnt < TOT2; cnt++) {
         #ifdef CONNECT_RULE1
         for  (int idx = 0; idx < NPH; idx++) {
             alloc2_t rule1 = this->gSS[vdMap[cnt]];
@@ -229,7 +229,7 @@ void ptss_DSE_srt::construct_alloc2() {
         #ifdef CONNECT_RULE2
         for  (int idx = 0; idx < NPH; idx++) {
             alloc2_t rule2 = this->gSS[vdMap[cnt]];
-            if (rule2[idx].alloc < M-1) {
+            if (rule2[idx].alloc < M) {
                 rule2[idx].alloc++;
                 ptss_int_t cnt2 = hashalloc_2(rule2);
                 add_edge(vdMap[cnt],vdMap[cnt2],RULE2,this->gSS);
@@ -611,7 +611,7 @@ void ptss_DSE_srt::random_walk3(ptss_int_t start_offset) {
 
 void ptss_DSE_srt::printRuleGraph() {
     /* Dump the graph */
-    if (NPH <= 2) {
+    if (TOT2 <= 200) {
         cout << "\n-- graphviz output START --" << endl;
         ofstream dotf;
         dotf.open("demo.dot",ios::out | ios::trunc);
@@ -655,7 +655,7 @@ set<ptss_int_t> ptss_DSE_srt::applyRule2(const ptss_int_t pt1) {
     set<ptss_int_t> children;
     for (int idx = 0; idx < NPH; idx++) {
         alloc2_t rule1 = invhashalloc_2(pt1,this->bench);
-        if (rule1[idx].alloc < M-1) {
+        if (rule1[idx].alloc < M-1) { /* TODO : M-1 is a probable bug fix this */
                 rule1[idx].alloc++;
                 ptss_int_t cnt2 = hashalloc_2(rule1);
 

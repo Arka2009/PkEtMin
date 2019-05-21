@@ -29,7 +29,7 @@ int main() {
         ptss_DSE_srt obj(inDoc,idx++,done);
         #ifdef USEBGL
         obj.printRuleGraph();
-        obj.random_walk3(56771);
+        obj.random_walk3(2);
         #else
         obj.random_walk4(2766);
         #endif
