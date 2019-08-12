@@ -115,7 +115,6 @@ def exp5():
     for numPhases in phases:
         workloadGenDual(numPhases,10,10,"exp5")
 
-
 def exp6():
     """
         Runtime of PkMin vs BONMIN for applications with
